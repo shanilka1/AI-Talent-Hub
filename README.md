@@ -6,8 +6,8 @@
 [![CSS3](https://img.shields.io/badge/CSS3-Design-blue?style=flat-square&logo=css3)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-Frontend-yellow?style=flat-square&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![AI Powered](https://img.shields.io/badge/AI-Powered-success?style=flat-square&logo=openai)](https://openai.com/)
-[![Last Commit](https://img.shields.io/github/last-commit/USERNAME/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub/commits)
-[![Repo Size](https://img.shields.io/github/repo-size/USERNAME/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub)
+[![Last Commit](https://img.shields.io/github/last-commit/shanilka1/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub/commits)
+[![Repo Size](https://img.shields.io/github/repo-size/shanilka1/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub)
 ⸻
 
 ### 🌟 Overview
