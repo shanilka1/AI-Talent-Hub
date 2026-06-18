@@ -156,10 +156,11 @@ AI-Talent-Hub/
 **Shanilka Lakshan**
 
 ### Team Members
-- Member 01
-- Member 02
-- Member 03
-- Member 04
+- Darshana Chinthaka
+- Kawya Dissanayaka
+- Minidu Mansara
+- Kavindi Perera
+- Desanda Chathmal
 
 ---
 
