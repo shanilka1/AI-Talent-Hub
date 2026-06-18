@@ -1,175 +1,197 @@
-# 🚀 AI Talent Hub
+## 🚀 AI Talent Hub – AI Powered Resume Builder & Job Matching Platform
 
-AI Talent Hub is an AI-powered recruitment platform designed to connect job seekers with employers through intelligent resume building, job matching, and candidate screening. The platform helps candidates discover suitable career opportunities while enabling recruiters to find the best talent efficiently.
+⸻
 
----
+### 🌟 Overview
 
-## 📌 Features
+AI Talent Hub is an intelligent recruitment system that connects job seekers and employers using AI-driven matching technology.
 
-### 👨‍💼 For Job Seekers
-- AI-Powered Resume Builder
-- Resume Upload & Management
-- Smart Job Recommendations
-- Job Search & Filtering
-- Application Tracking
-- Profile Management
-- Skills Assessment
-- Career Insights
+It allows candidates to build smart resumes, apply for jobs, and track applications while recruiters can post jobs, manage applicants, and identify the best talent efficiently.
 
-### 🏢 For Recruiters
-- Company Profile Management
-- Job Posting & Management
-- AI Candidate Matching
-- Applicant Tracking System (ATS)
-- Candidate Screening
-- Interview Scheduling
-- Recruitment Analytics
+⸻
+
+### ✨ Features
+
+### 👨‍🎓 Candidate Features
+
+* AI Resume Builder
+* Resume Upload & Management
+* Job Search & Filtering
+* Smart Job Recommendations
+* Application Tracking System
+* Profile Management
+
+### 🏢 Recruiter Features
+
+* Job Posting System
+* Candidate Search & Filtering
+* Applicant Tracking System (ATS)
+* Interview Scheduling
+* Company Profile Management
 
 ### 🤖 AI Features
-- Resume Analysis
-- Skill Extraction
-- Job-Candidate Matching
-- Candidate Ranking
-- Personalized Job Recommendations
-- Automated Resume Suggestions
 
----
+* Resume Parsing & Analysis
+* Skill Extraction
+* Job-Candidate Matching
+* Candidate Ranking System
+* Smart Recommendations
 
-## 🛠️ Technology Stack
+⸻
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
-- Bootstrap 5
+### ⚡ Tech Stack
 
-### Backend
-- ASP.NET Core (C#)
-- REST API
+* Frontend: HTML, CSS, JavaScript, Bootstrap 5
+* Backend: ASP.NET Core (C#)
+* Database: Microsoft SQL Server
+* AI Integration: OpenAI API / Matching Engine
+* Tools: Visual Studio 2022, Git, GitHub
 
-### Database
-- Microsoft SQL Server
+⸻
 
-### AI & Machine Learning
-- OpenAI API / AI Models
-- Resume Parsing Engine
-- Recommendation System
+### 📁 Project Structure
 
-### Development Tools
-- Visual Studio 2022
-- Git & GitHub
-
----
-
-## 📂 Project Structure
-
-```text
+```
 AI-Talent-Hub/
 │
 ├── Frontend/
-│   ├── HTML
-│   ├── CSS
-│   ├── JavaScript
-│   └── Bootstrap
+│   ├── pages/
+│   ├── components/
+│   ├── assets/
+│   └── services/
 │
 ├── Backend/
-│   ├── Controllers
-│   ├── Models
-│   ├── Services
-│   ├── Repositories
-│   └── APIs
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Services/
+│   └── APIs/
 │
 ├── Database/
-│   ├── Tables
-│   ├── Stored Procedures
-│   └── Scripts
-│
-├── Documentation/
-│   ├── SRS
-│   ├── UML Diagrams
-│   └── Reports
+│   ├── tables/
+│   ├── procedures/
+│   └── scripts/
 │
 └── README.md
 ```
 
----
+⸻
 
-## 🎯 System Modules
+### 👥 Team Members
 
-### Candidate Module
-- Registration & Login
-- Resume Builder
-- Resume Upload
-- Job Search
-- Job Applications
-- Profile Management
+👑 Group Leader
 
-### Recruiter Module
-- Recruiter Registration
-- Company Management
-- Job Posting
-- Candidate Search
-- Interview Management
+* Shanilka Lakshan
 
-### Admin Module
-- User Management
-- Job Monitoring
-- Reports & Analytics
-- System Configuration
+### 👨‍💻 Developers
 
----
+* Kawya Dissanayaka
+* Darshana Chinthaka
+* Kavindi Perera
+* Minidu Mansara
+* Desanda Chathmal
 
-## 📸 Future Enhancements
+⸻
 
-- AI Interview Assistant
-- Video Interview Integration
-- Skill Assessment Tests
-- Career Path Prediction
-- AI Chatbot Support
-- Mobile Application
+### 📊 System Modules
 
----
+* User Authentication System
+* Candidate Management System
+* Recruiter Management System
+* Job Posting & Application System
+* AI Matching Engine
+* Admin Dashboard
 
-## 🔒 Security Features
+⸻
 
-- Authentication & Authorization
-- Password Encryption
-- Role-Based Access Control
-- Secure API Communication
-- Data Protection
+🔒 Security Features
 
----
+* JWT Authentication
+* Role-Based Access Control
+* Password Encryption
+* Secure API Communication
 
-## 📈 Benefits
+⸻
 
-- Faster Hiring Process
-- Better Candidate Matching
-- Improved Recruitment Efficiency
-- Enhanced User Experience
-- AI-Driven Decision Making
+🚀 Getting Started
 
----
+Clone Repository
 
-## 👨‍💻 Team
+```
+git clone https://github.com/USERNAME/ai-talent-hub.git
+```
 
-### Group Leader
-**Shanilka Lakshan**
+Open Project
 
-### Team Members
-- Darshana Chinthaka
-- Kawya Dissanayaka
-- Minidu Mansara
-- Kavindi Perera
-- Desanda Chathmal
+```
+cd ai-talent-hub
+```
 
----
+Run Backend
 
-## 📄 License
+```
+dotnet run
+```
+Run Frontend
 
-This project is developed for educational and academic purposes.
+```
+open index.html
+```
 
----
+⸻
 
-## ⭐ AI Talent Hub
+🔮 Future Enhancements
 
-*"Connecting Talent with Opportunities through Artificial Intelligence."*
+* AI Interview Chatbot
+* Video Interview System
+* Mobile App Version
+* Advanced Analytics Dashboard
+* Career Path Prediction
+
+⸻
+
+📄 License
+
+This project is for educational purposes only.
+
+⸻
+
+⭐ AI Talent Hub
+
+```
+“Connecting Talent with Opportunities Through Artificial Intelligence”
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
