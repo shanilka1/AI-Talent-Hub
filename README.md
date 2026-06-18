@@ -1,5 +1,13 @@
 ## 🚀 AI Talent Hub – AI Powered Resume Builder & Job Matching Platform
-
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-blue?style=flat-square&logo=.net)](https://dotnet.microsoft.com/)
+[![C#](https://img.shields.io/badge/C%23-Latest-purple?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-Database-red?style=flat-square&logo=microsoftsqlserver)](https://www.microsoft.com/en-us/sql-server)
+[![HTML5](https://img.shields.io/badge/HTML5-Frontend-orange?style=flat-square&logo=html5)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-Design-blue?style=flat-square&logo=css3)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-Frontend-yellow?style=flat-square&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-success?style=flat-square&logo=openai)](https://openai.com/)
+[![Last Commit](https://img.shields.io/github/last-commit/USERNAME/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub/commits)
+[![Repo Size](https://img.shields.io/github/repo-size/USERNAME/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub)
 ⸻
 
 ### 🌟 Overview
