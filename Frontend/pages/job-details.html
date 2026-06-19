@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Job Details</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .details-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        .meta-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div id="job-details-loading">
+            <p style="color: var(--text-muted);">Loading job details...</p>
+        </div>
+
+        <div id="job-details-content" style="display: none;">
+            <div class="details-grid">
+                <!-- Left: Info -->
+                <div>
+                    <h1 id="job-title">Job Title</h1>
+                    <div class="meta-row">
+                        <span class="badge badge-primary" id="job-type">Full-Time</span>
+                        <span class="badge" id="job-location">Location</span>
+                        <span class="badge badge-success" id="job-salary">Salary</span>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Description</h3>
+                        <p id="job-description" style="line-height: 1.7; color: var(--text-secondary); white-space: pre-line;"></p>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Required Competencies</h3>
+                        <div class="tag-container" id="job-requirements">
+                            <!-- Tags -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Apply Panel -->
+                <div>
+                    <div class="card" style="position: sticky; top: 100px;">
+                        <h3 class="card-title" id="company-name">Company Name</h3>
+                        <p id="company-desc" style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;"></p>
+                        
+                        <div id="apply-action-section">
+                            <!-- Populated dynamically -->
+                            <button class="btn btn-primary btn-block" onclick="applyJob()" id="apply-btn">Apply Now</button>
+                        </div>
+                        
+                        <div id="match-result-box" class="card" style="display: none; margin-top: 1.5rem; margin-bottom: 0; background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.3);">
+                            <!-- Match results -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/jobs.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = parseInt(urlParams.get('id'));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!jobId) {
+                window.location.href = '/pages/job-search.html';
+                return;
+            }
+            loadJobDetails();
+        });
+
+        async function loadJobDetails() {
+            try {
+                const job = await jobsService.getJobDetails(jobId);
+                
+                document.getElementById('job-title').textContent = job.title;
+                document.getElementById('job-type').textContent = job.jobType;
+                document.getElementById('job-location').textContent = job.location;
+                document.getElementById('job-salary').textContent = job.salaryRange || 'Open';
+                document.getElementById('job-description').textContent = job.description;
+                
+                // Set requirements
+                const reqContainer = document.getElementById('job-requirements');
+                reqContainer.innerHTML = '';
+                if (job.requirements) {
+                    job.requirements.split(';').forEach(req => {
+                        const span = document.createElement('span');
+                        span.className = 'tag';
+                        span.textContent = req;
+                        reqContainer.appendChild(span);
+                    });
+                } else {
+                    reqContainer.innerHTML = '<span style="color: var(--text-muted);">None listed.</span>';
+                }
+
+                // Company info
+                document.getElementById('company-name').textContent = job.companyName || 'Employer';
+                document.getElementById('company-desc').textContent = job.companyDescription || 'No company details provided.';
+
+                setupApplySection();
+
+                document.getElementById('job-details-loading').style.display = 'none';
+                document.getElementById('job-details-content').style.display = 'block';
+            } catch (err) {
+                document.getElementById('job-details-loading').innerHTML = `<p style="color: var(--accent);">Failed to retrieve job details.</p>`;
+            }
+        }
+
+        async function setupApplySection() {
+            const container = document.getElementById('apply-action-section');
+            const token = localStorage.getItem('token');
+            const user = authService.getCurrentUser();
+
+            if (!token || !user) {
+                container.innerHTML = `
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">You must be logged in to apply.</p>
+                    <a href="/pages/auth.html" class="btn btn-primary btn-block">Log In to Apply</a>`;
+                return;
+            }
+
+            if (user.role === 'Recruiter') {
+                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">Recruiters cannot apply for jobs.</p>`;
+                return;
+            }
+
+            // Check if candidate already applied
+            try {
+                const myApps = await jobsService.getMyApplications();
+                const applied = myApps.find(a => a.jobId === jobId);
+
+                if (applied) {
+                    container.innerHTML = `
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
+                            <p style="color: #34d399; font-weight: 600; margin-bottom: 0.25rem;">Application Submitted</p>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary);">Status: <strong>${applied.status}</strong></p>
+                        </div>`;
+                    
+                    displayMatchScore(applied.matchScore, applied.matchExplanation);
+                } else {
+                    container.innerHTML = `<button class="btn btn-primary btn-block" onclick="applyJob()" id="apply-btn">Submit Application</button>`;
+                }
+            } catch (err) {
+                console.error("Error setting up apply section", err);
+            }
+        }
+
+        async function applyJob() {
+            const btn = document.getElementById('apply-btn');
+            btn.disabled = true;
+            btn.textContent = "Submitting...";
+
+            try {
+                const data = await jobsService.applyForJob(jobId);
+                alert("Application submitted successfully!");
+                setupApplySection(); // Refresh apply section UI
+            } catch (err) {
+                alert(`Application failed: ${err.message}`);
+                btn.disabled = false;
+                btn.textContent = "Submit Application";
+            }
+        }
+
+        function displayMatchScore(score, explanation) {
+            const box = document.getElementById('match-result-box');
+            box.style.display = 'block';
+
+            const detailsHtml = explanation.details.map(d => {
+                if (d.includes('Matches required skill')) {
+                    return `<li style="color: #34d399; font-size: 0.85rem; margin-bottom: 0.4rem;">✔️ ${d.replace(/\*\*/g, '')}</li>`;
+                } else if (d.includes('Found keyword')) {
+                    return `<li style="color: #60a5fa; font-size: 0.85rem; margin-bottom: 0.4rem;">💡 ${d.replace(/\*\*/g, '')}</li>`;
+                } else {
+                    return `<li style="color: #fb7185; font-size: 0.85rem; margin-bottom: 0.4rem;">❌ ${d.replace(/\*\*/g, '')}</li>`;
+                }
+            }).join('');
+
+            box.innerHTML = `
+                <h4 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1rem;">🤖 Your AI Matching Score</h4>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="score-gauge" style="--percent: ${score}; width: 56px; height: 56px; flex-shrink: 0;">
+                        <span class="score-value" style="font-size: 0.85rem;">${score}%</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">${explanation.summary}</p>
+                </div>
+                <ul style="list-style: none; padding: 0; margin-top: 1rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
+                    ${detailsHtml}
+                </ul>
+            `;
+        }
+    </script>
+</body>
+</html>

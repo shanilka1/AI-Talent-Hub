@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Recruiter Dashboard</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .job-item {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .job-item:hover {
+            border-color: var(--primary);
+        }
+        .applicant-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.75rem;
+        }
+        .candidate-detail-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="dashboard-header">
+            <div>
+                <h1 id="welcome-title">Recruiter Dashboard</h1>
+                <p class="subtitle" id="company-subtitle" style="margin-bottom: 0;">Manage job postings and screen matched candidates.</p>
+            </div>
+            <div>
+                <a href="/pages/post-job.html" class="btn btn-primary">Create Job Posting</a>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Left Column: Job Postings & Applicants -->
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">📂 Your Job Postings</h3>
+                <div id="jobs-list">
+                    <p style="color: var(--text-muted);">Loading job postings...</p>
+                </div>
+
+                <div id="applicants-section" style="margin-top: 3rem; display: none;">
+                    <h3 style="margin-bottom: 0.5rem;" id="applicants-title">Applicants</h3>
+                    <p class="subtitle" style="font-size: 0.9rem;" id="applicants-subtitle">Select a job post to view and rank candidates.</p>
+                    <div id="applicants-list">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Scheduled Interviews -->
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">📅 Active Interview Calendar</h3>
+                <div id="interviews-list">
+                    <p style="color: var(--text-muted);">Loading interviews...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Interview Modal -->
+        <div id="interview-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <h3 style="margin-bottom: 1.5rem;">Schedule Interview</h3>
+                <form id="form-interview" onsubmit="handleScheduleInterview(event)">
+                    <input type="hidden" id="modal-app-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="interview-time">Date & Time</label>
+                        <input type="datetime-local" id="interview-time" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="interview-link">Location / Meeting Link</label>
+                        <input type="text" id="interview-link" class="form-input" placeholder="Google Meet link or Room Number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="interview-notes">Interviewer Notes</label>
+                        <textarea id="interview-notes" class="form-input" placeholder="Topics to cover, instructions for applicant..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Confirm Appointment</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/jobs.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        let selectedJobId = null;
+
+        // Secure access
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/pages/auth.html';
+        } else {
+            const user = authService.getCurrentUser();
+            if (user && user.role !== 'Recruiter') {
+                window.location.href = '/pages/candidate-dashboard.html';
+            } else {
+                document.getElementById('welcome-title').textContent = `${user.fullName} (${user.role})`;
+                loadRecruiterData();
+            }
+        }
+
+        async function loadRecruiterData() {
+            loadCompanyProfile();
+            loadJobs();
+            loadInterviews();
+        }
+
+        async function loadCompanyProfile() {
+            try {
+                const profile = await jobsService.getRecruiterProfile();
+                document.getElementById('company-subtitle').textContent = `Managing postings for: ${profile.companyName}`;
+            } catch (err) {
+                console.error("Failed to load recruiter company profile", err);
+            }
+        }
+
+        async function loadJobs() {
+            const container = document.getElementById('jobs-list');
+            try {
+                const jobs = await jobsService.getMyPostings();
+                if (jobs.length === 0) {
+                    container.innerHTML = `
+                        <div class="card" style="text-align: center;">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">You haven't posted any jobs yet.</p>
+                            <a href="/pages/post-job.html" class="btn btn-secondary btn-block">Post First Job</a>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = jobs.map(job => {
+                    const date = new Date(job.createdAt).toLocaleDateString();
+                    return `
+                        <div class="card job-item" id="job-card-${job.id}" onclick="selectJob(${job.id}, '${job.title}')">
+                            <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem; color: var(--primary);">${job.title}</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary);">${job.location} &bull; ${job.jobType}</p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">Posted on: ${date}</p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load jobs.</p>`;
+            }
+        }
+
+        async function selectJob(jobId, jobTitle) {
+            selectedJobId = jobId;
+            
+            // Highlight selected job card
+            document.querySelectorAll('.job-item').forEach(card => card.style.borderColor = 'var(--border-glass)');
+            const selectedCard = document.getElementById(`job-card-${jobId}`);
+            if (selectedCard) selectedCard.style.borderColor = 'var(--primary)';
+
+            document.getElementById('applicants-section').style.display = 'block';
+            document.getElementById('applicants-title').textContent = `Applicants for: ${jobTitle}`;
+            loadApplicants(jobId);
+        }
+
+        async function loadApplicants(jobId) {
+            const container = document.getElementById('applicants-list');
+            container.innerHTML = '<p style="color: var(--text-muted);">Loading applicants...</p>';
+            
+            try {
+                const applicants = await jobsService.getJobApplicants(jobId);
+                if (applicants.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-secondary);">No applications received for this job yet.</p>`;
+                    return;
+                }
+
+                container.innerHTML = applicants.map(app => {
+                    const parsedSnapshot = app.resumeSnapshot;
+                    return `
+                        <div style="margin-bottom: 1rem;">
+                            <div class="applicant-row">
+                                <div style="flex: 1;">
+                                    <h4 style="margin-bottom: 0.25rem;">${app.candidateName}</h4>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary);">${app.candidateEmail}</p>
+                                    <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                                        <button class="btn btn-secondary" onclick="toggleDetails(${app.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">View Details</button>
+                                        <button class="btn btn-secondary" onclick="openInterviewModal(${app.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Schedule Interview</button>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                    <div class="match-score-container">
+                                        <div class="score-gauge" style="--percent: ${app.matchScore}; width: 48px; height: 48px;">
+                                            <span class="score-value" style="font-size: 0.8rem;">${app.matchScore}%</span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <select class="form-input" style="font-size: 0.8rem; padding: 0.3rem 0.5rem; width: 120px;" onchange="updateStatus(${app.id}, this.value)">
+                                            <option value="Applied" ${app.status === 'Applied' ? 'selected' : ''}>Applied</option>
+                                            <option value="Reviewing" ${app.status === 'Reviewing' ? 'selected' : ''}>Reviewing</option>
+                                            <option value="Interviewing" ${app.status === 'Interviewing' ? 'selected' : ''}>Interviewing</option>
+                                            <option value="Offered" ${app.status === 'Offered' ? 'selected' : ''}>Offered</option>
+                                            <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Detailed Resume Box -->
+                            <div class="candidate-detail-box" id="detail-box-${app.id}">
+                                <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">Candidate Summary</h5>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">${parsedSnapshot.bio || "No summary provided."}</p>
+                                
+                                <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">Extracted Skills</h5>
+                                <div class="tag-container" style="margin-bottom: 1.5rem;">
+                                    ${parsedSnapshot.skills ? parsedSnapshot.skills.split(';').map(s => `<span class="tag">${s}</span>`).join('') : '<p style="font-size: 0.85rem; color: var(--text-muted);">None listed.</p>'}
+                                </div>
+
+                                <div class="grid-2">
+                                    <div>
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">Work Experience</h5>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                            ${renderListJson(parsedSnapshot.experience)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">Education</h5>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                            ${renderListJson(parsedSnapshot.education)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load applicants.</p>`;
+            }
+        }
+
+        function renderListJson(jsonVal) {
+            let list = [];
+            try {
+                list = typeof jsonVal === 'string' ? JSON.parse(jsonVal) : jsonVal;
+            } catch (e) {}
+
+            if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
+            return list.map(item => `
+                <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                    <p style="font-weight: 600; color: var(--text-primary);">${item.title || item.degree || 'Item'}</p>
+                    <p style="color: var(--text-muted); font-size: 0.8rem;">${item.company || item.school || ''} &bull; ${item.years || item.year || ''}</p>
+                </div>
+            `).join('');
+        }
+
+        function toggleDetails(appId) {
+            const box = document.getElementById(`detail-box-${appId}`);
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+            }
+        }
+
+        async function updateStatus(appId, newStatus) {
+            try {
+                await jobsService.updateApplicationStatus(appId, newStatus);
+                loadInterviews(); // Refresh interviews in case status changed to/from interviewing
+            } catch (err) {
+                alert(`Error updating status: ${err.message}`);
+            }
+        }
+
+        async function loadInterviews() {
+            const container = document.getElementById('interviews-list');
+            try {
+                const interviews = await jobsService.getMyInterviews();
+                if (interviews.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-muted);">No upcoming interviews scheduled.</p>`;
+                    return;
+                }
+
+                container.innerHTML = interviews.map(i => {
+                    const date = new Date(i.scheduledTime).toLocaleString();
+                    return `
+                        <div class="card" style="padding: 1.2rem; margin-bottom: 0.75rem;">
+                            <h4 style="color: var(--primary); margin-bottom: 0.25rem;">${i.candidateName}</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Role: ${i.jobTitle}</p>
+                            <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">📅 ${date}</p>
+                            <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">📍 Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--secondary); text-decoration: none;">${i.locationOrLink}</a></p>
+                            ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px;">Notes: ${i.notes}</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load interviews.</p>`;
+            }
+        }
+
+        function openInterviewModal(appId) {
+            document.getElementById('modal-app-id').value = appId;
+            document.getElementById('interview-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('interview-modal').style.display = 'none';
+            document.getElementById('form-interview').reset();
+        }
+
+        async function handleScheduleInterview(e) {
+            e.preventDefault();
+            const appId = document.getElementById('modal-app-id').value;
+            const time = document.getElementById('interview-time').value;
+            const link = document.getElementById('interview-link').value;
+            const notes = document.getElementById('interview-notes').value;
+
+            try {
+                await jobsService.scheduleInterview(appId, time, link, notes);
+                closeModal();
+                loadInterviews();
+                if (selectedJobId) {
+                    loadApplicants(selectedJobId);
+                }
+            } catch (err) {
+                alert(`Failed to schedule interview: ${err.message}`);
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('interview-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

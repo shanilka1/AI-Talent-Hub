@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Candidate Dashboard</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .recommendation-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .app-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-applied { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .status-reviewing { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-interviewing { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .status-offered { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-rejected { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="dashboard-header">
+            <div>
+                <h1 id="welcome-title">Welcome, Candidate</h1>
+                <p class="subtitle" style="margin-bottom: 0;">Smart job recommendations matched to your skills.</p>
+            </div>
+            <div>
+                <a href="/pages/resume-builder.html" class="btn btn-primary">Update Smart Resume</a>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Left Column: Recommendations -->
+            <div>
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">🤖 Smart AI Recommendations</h3>
+                <div id="recommendations-list">
+                    <p style="color: var(--text-muted);">Loading recommendations...</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Interviews & Applications -->
+            <div>
+                <!-- Upcoming Interviews -->
+                <h3 style="margin-bottom: 1.5rem;">📅 Scheduled Interviews</h3>
+                <div id="interviews-list" style="margin-bottom: 3rem;">
+                    <p style="color: var(--text-muted);">Loading interviews...</p>
+                </div>
+
+                <!-- Job Application Tracker -->
+                <h3 style="margin-bottom: 1.5rem;">📝 Your Applications</h3>
+                <div id="applications-list">
+                    <p style="color: var(--text-muted);">Loading applications...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Match Explanation Modal -->
+        <div id="match-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+                <h3 style="margin-bottom: 1rem;" id="modal-title">AI Compatibility Analysis</h3>
+                <div id="modal-body">
+                    <!-- Dynamic details go here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/jobs.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        // Secure page access
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/pages/auth.html';
+        } else {
+            const user = authService.getCurrentUser();
+            if (user && user.role !== 'Candidate') {
+                window.location.href = '/pages/recruiter-dashboard.html';
+            } else {
+                document.getElementById('welcome-title').textContent = `Welcome, ${user.fullName}`;
+                loadDashboardData();
+            }
+        }
+
+        async function loadDashboardData() {
+            loadRecommendations();
+            loadApplications();
+            loadInterviews();
+        }
+
+        async function loadRecommendations() {
+            const container = document.getElementById('recommendations-list');
+            try {
+                const recs = await jobsService.getRecommendations();
+                if (recs.length === 0) {
+                    container.innerHTML = `
+                        <div class="card" style="text-align: center;">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">No jobs found in the system yet.</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = recs.map(job => {
+                    const score = job.matchScore;
+                    return `
+                        <div class="card recommendation-card">
+                            <div style="flex: 1; padding-right: 1rem;">
+                                <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">${job.title}</h4>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">${job.companyName} &bull; ${job.location}</p>
+                                <div class="tag-container">
+                                    ${job.requirements.split(';').map(req => `<span class="tag">${req}</span>`).join('')}
+                                </div>
+                                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                                    <a href="/pages/job-details.html?id=${job.id}" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">View Details</a>
+                                    <button class="btn btn-secondary" onclick="showExplanation(${JSON.stringify(job).replace(/"/g, '&quot;')})" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">AI Analysis</button>
+                                </div>
+                            </div>
+                            <div class="match-score-container" style="flex-shrink: 0;">
+                                <div class="score-gauge" style="--percent: ${score};">
+                                    <span class="score-value">${score}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load recommendations: ${err.message}</p>`;
+            }
+        }
+
+        async function loadApplications() {
+            const container = document.getElementById('applications-list');
+            try {
+                const apps = await jobsService.getMyApplications();
+                if (apps.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-muted);">You haven't applied for any jobs yet.</p>`;
+                    return;
+                }
+
+                container.innerHTML = apps.map(app => {
+                    let statusClass = 'status-applied';
+                    if (app.status.toLowerCase() === 'reviewing') statusClass = 'status-reviewing';
+                    if (app.status.toLowerCase() === 'interviewing') statusClass = 'status-interviewing';
+                    if (app.status.toLowerCase() === 'offered') statusClass = 'status-offered';
+                    if (app.status.toLowerCase() === 'rejected') statusClass = 'status-rejected';
+
+                    return `
+                        <div class="list-item">
+                            <div>
+                                <h4 style="margin-bottom: 0.25rem;">${app.jobTitle}</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">${app.companyName} &bull; Match: ${app.matchScore}%</p>
+                            </div>
+                            <div>
+                                <span class="app-status ${statusClass}">${app.status}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load applications.</p>`;
+            }
+        }
+
+        async function loadInterviews() {
+            const container = document.getElementById('interviews-list');
+            try {
+                const interviews = await jobsService.getMyInterviews();
+                if (interviews.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-muted);">No upcoming interviews scheduled.</p>`;
+                    return;
+                }
+
+                container.innerHTML = interviews.map(i => {
+                    const date = new Date(i.scheduledTime).toLocaleString();
+                    return `
+                        <div class="card" style="padding: 1.2rem; margin-bottom: 0.75rem;">
+                            <h4 style="color: var(--secondary); margin-bottom: 0.25rem;">${i.jobTitle}</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Company: ${i.companyName}</p>
+                            <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">📅 ${date}</p>
+                            <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">📍 Location/Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--primary); text-decoration: none;">${i.locationOrLink}</a></p>
+                            ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px;">Note: ${i.notes}</p>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load interviews.</p>`;
+            }
+        }
+
+        function showExplanation(job) {
+            const modal = document.getElementById('match-modal');
+            const body = document.getElementById('modal-body');
+            document.getElementById('modal-title').textContent = `AI Fit Analysis: ${job.title}`;
+
+            const detail = job.matchExplanation;
+            const detailsHtml = detail.details.map(d => {
+                if (d.includes('Matches required skill')) {
+                    return `<li style="color: #34d399; margin-bottom: 0.5rem;">✔️ ${d.replace(/\*\*/g, '')}</li>`;
+                } else if (d.includes('Found keyword')) {
+                    return `<li style="color: #60a5fa; margin-bottom: 0.5rem;">💡 ${d.replace(/\*\*/g, '')}</li>`;
+                } else {
+                    return `<li style="color: #fb7185; margin-bottom: 0.5rem;">❌ ${d.replace(/\*\*/g, '')}</li>`;
+                }
+            }).join('');
+
+            body.innerHTML = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div class="score-gauge" style="--percent: ${detail.score}; margin: 0 auto 0.5rem;">
+                        <span class="score-value" style="font-size: 1.2rem;">${detail.score}%</span>
+                    </div>
+                    <p style="font-weight: 600;">${detail.summary}</p>
+                </div>
+                <hr style="border: 0; border-top: 1px solid var(--border-glass); margin-bottom: 1.5rem;">
+                <h4 style="margin-bottom: 0.75rem;">Requirements Breakdown:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    ${detailsHtml}
+                </ul>
+                <div style="margin-top: 2rem; text-align: right;">
+                    <a href="/pages/job-details.html?id=${job.id}" class="btn btn-primary" style="font-size: 0.9rem;">View Job & Apply</a>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('match-modal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('match-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
