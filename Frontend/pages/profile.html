@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Profile</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .profile-container {
+            max-width: 580px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="card profile-container">
+            <h1 style="margin-bottom: 0.5rem;">User Profile</h1>
+            <p class="subtitle" style="margin-bottom: 2rem;">Manage your user account and profile settings.</p>
+
+            <!-- Loading indicator -->
+            <div id="profile-loading">
+                <p style="color: var(--text-muted);">Loading profile data...</p>
+            </div>
+
+            <!-- Profile View/Edit Box -->
+            <div id="profile-content" style="display: none;">
+                <!-- General Info -->
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="profile-name" class="form-input" readonly>
+                </div>
+                <div class="form-group" style="margin-bottom: 2.5rem;">
+                    <label class="form-label">Email Address</label>
+                    <input type="text" id="profile-email" class="form-input" readonly>
+                </div>
+
+                <!-- Recruiter Section -->
+                <div id="recruiter-section" style="display: none;">
+                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">Company Settings</h3>
+                    
+                    <form id="form-recruiter-profile" onsubmit="handleSaveRecruiterProfile(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="company-name-input">Company Name</label>
+                            <input type="text" id="company-name-input" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="company-desc-input">Company Description</label>
+                            <textarea id="company-desc-input" class="form-input" placeholder="What does your company do?"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="company-web-input">Website URL</label>
+                            <input type="text" id="company-web-input" class="form-input" placeholder="https://mycompany.com">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Save Company Settings</button>
+                    </form>
+                </div>
+
+                <!-- Candidate Section -->
+                <div id="candidate-section" style="display: none;">
+                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">Candidate Settings</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+                        Your resume details, work history, and education are managed through the interactive AI Resume Builder.
+                    </p>
+                    <a href="/pages/resume-builder.html" class="btn btn-primary btn-block">Go to AI Resume Builder</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/jobs.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        // Secure access
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/pages/auth.html';
+        } else {
+            loadUserProfile();
+        }
+
+        async function loadUserProfile() {
+            const user = authService.getCurrentUser();
+            document.getElementById('profile-name').value = user.fullName;
+            document.getElementById('profile-email').value = user.email;
+
+            try {
+                if (user.role === 'Recruiter') {
+                    document.getElementById('recruiter-section').style.display = 'block';
+                    
+                    // Fetch recruiter details
+                    const profile = await jobsService.getRecruiterProfile();
+                    document.getElementById('company-name-input').value = profile.companyName || '';
+                    document.getElementById('company-desc-input').value = profile.companyDescription || '';
+                    document.getElementById('company-web-input').value = profile.companyWebsite || '';
+                } else if (user.role === 'Candidate') {
+                    document.getElementById('candidate-section').style.display = 'block';
+                }
+
+                document.getElementById('profile-loading').style.display = 'none';
+                document.getElementById('profile-content').style.display = 'block';
+            } catch (err) {
+                console.error("Failed to load profile", err);
+                document.getElementById('profile-loading').innerHTML = `<p style="color: var(--accent);">Failed to load profile details.</p>`;
+            }
+        }
+
+        async function handleSaveRecruiterProfile(e) {
+            e.preventDefault();
+            const companyName = document.getElementById('company-name-input').value;
+            const companyDescription = document.getElementById('company-desc-input').value;
+            const companyWebsite = document.getElementById('company-web-input').value;
+
+            try {
+                await jobsService.updateRecruiterProfile({
+                    companyName,
+                    companyDescription,
+                    companyWebsite
+                });
+                alert("Company settings updated successfully!");
+            } catch (err) {
+                alert(`Failed to save settings: ${err.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
