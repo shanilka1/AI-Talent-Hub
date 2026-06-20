@@ -7,8 +7,156 @@
     <link rel="stylesheet" href="/assets/style.css">
     <style>
         .profile-container {
-            max-width: 580px;
+            max-width: 620px;
             margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .profile-header-info {
+            flex: 1;
+        }
+
+        .profile-header-info h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-header-info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .role-candidate {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .role-recruiter {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .role-hiringmanager {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .role-admin {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .profile-actions .btn {
+            flex: 1;
+        }
+
+        .success-msg {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-msg {
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #fb7185;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -17,8 +165,12 @@
 
     <main>
         <div class="card profile-container">
-            <h1 style="margin-bottom: 0.5rem;">User Profile</h1>
-            <p class="subtitle" style="margin-bottom: 2rem;">Manage your user account and profile settings.</p>
+            <h1 style="margin-bottom: 0.5rem;">👤 My Profile</h1>
+            <p class="subtitle" style="margin-bottom: 2rem;">Manage your account and profile settings.</p>
+
+            <!-- Success / Error messages -->
+            <div id="success-msg" class="success-msg"></div>
+            <div id="error-msg" class="error-msg"></div>
 
             <!-- Loading indicator -->
             <div id="profile-loading">
@@ -27,19 +179,33 @@
 
             <!-- Profile View/Edit Box -->
             <div id="profile-content" style="display: none;">
-                <!-- General Info -->
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" id="profile-name" class="form-input" readonly>
+
+                <!-- Profile Header with Avatar -->
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar"></div>
+                    <div class="profile-header-info">
+                        <h2 id="profile-display-name"></h2>
+                        <p id="profile-display-email"></p>
+                        <span class="role-badge" id="profile-role-badge"></span>
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 2.5rem;">
-                    <label class="form-label">Email Address</label>
-                    <input type="text" id="profile-email" class="form-input" readonly>
+
+                <!-- Account Info Section -->
+                <div style="margin-bottom: 2rem;">
+                    <div class="section-title">🔒 Account Information</div>
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="profile-name" class="form-input" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="text" id="profile-email" class="form-input" readonly>
+                    </div>
                 </div>
 
                 <!-- Recruiter Section -->
                 <div id="recruiter-section" style="display: none;">
-                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">Company Settings</h3>
+                    <div class="section-title">🏢 Company Settings</div>
                     
                     <form id="form-recruiter-profile" onsubmit="handleSaveRecruiterProfile(event)">
                         <div class="form-group">
@@ -54,17 +220,40 @@
                             <label class="form-label" for="company-web-input">Website URL</label>
                             <input type="text" id="company-web-input" class="form-input" placeholder="https://mycompany.com">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Save Company Settings</button>
+                        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1rem;">💾 Save Company Settings</button>
                     </form>
                 </div>
 
                 <!-- Candidate Section -->
                 <div id="candidate-section" style="display: none;">
-                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">Candidate Settings</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
-                        Your resume details, work history, and education are managed through the interactive AI Resume Builder.
+                    <div class="section-title">📄 Candidate Profile</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+                        Your resume details, work history, skills, and education are managed through the interactive AI Resume Builder.
                     </p>
-                    <a href="/pages/resume-builder.html" class="btn btn-primary btn-block">Go to AI Resume Builder</a>
+                    <a href="/pages/resume-builder.html" class="btn btn-primary btn-block">🚀 Go to AI Resume Builder</a>
+                </div>
+
+                <!-- HiringManager Section -->
+                <div id="hiringmanager-section" style="display: none;">
+                    <div class="section-title">📋 Hiring Manager</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+                        As a Hiring Manager, you can review applications, schedule interviews, and manage your hiring pipeline from your dashboard.
+                    </p>
+                    <a href="/pages/hiring-manager-dashboard.html" class="btn btn-primary btn-block">📊 Go to Dashboard</a>
+                </div>
+
+                <!-- Admin Section -->
+                <div id="admin-section" style="display: none;">
+                    <div class="section-title">⚙️ Administrator</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
+                        As an Admin, you have full access to manage users, organizations, and platform settings from the admin dashboard.
+                    </p>
+                    <a href="/pages/admin-dashboard.html" class="btn btn-primary btn-block">🛡️ Go to Admin Dashboard</a>
+                </div>
+
+                <!-- Logout -->
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass);">
+                    <button class="btn btn-danger btn-block" onclick="authService.logout()">🚪 Logout</button>
                 </div>
             </div>
         </div>
@@ -86,12 +275,56 @@
             loadUserProfile();
         }
 
+        function showSuccess(msg) {
+            const el = document.getElementById('success-msg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 5000);
+        }
+
         async function loadUserProfile() {
             const user = authService.getCurrentUser();
-            document.getElementById('profile-name').value = user.fullName;
-            document.getElementById('profile-email').value = user.email;
+            if (!user) {
+                window.location.href = '/pages/auth.html';
+                return;
+            }
+
+            // Set basic profile info
+            document.getElementById('profile-name').value = user.fullName || '';
+            document.getElementById('profile-email').value = user.email || '';
+            document.getElementById('profile-display-name').textContent = user.fullName || 'User';
+            document.getElementById('profile-display-email').textContent = user.email || '';
+
+            // Avatar initials
+            const initials = (user.fullName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('profile-avatar').textContent = initials;
+
+            // Role badge
+            const roleBadge = document.getElementById('profile-role-badge');
+            const roleLabels = {
+                'Candidate': '🎯 Candidate',
+                'Recruiter': '💼 Recruiter',
+                'HiringManager': '📋 Hiring Manager',
+                'Admin': '🛡️ Administrator'
+            };
+            const roleClasses = {
+                'Candidate': 'role-candidate',
+                'Recruiter': 'role-recruiter',
+                'HiringManager': 'role-hiringmanager',
+                'Admin': 'role-admin'
+            };
+            roleBadge.textContent = roleLabels[user.role] || user.role;
+            roleBadge.classList.add(roleClasses[user.role] || 'role-candidate');
 
             try {
+                // Show role-specific section
                 if (user.role === 'Recruiter') {
                     document.getElementById('recruiter-section').style.display = 'block';
                     
@@ -102,14 +335,19 @@
                     document.getElementById('company-web-input').value = profile.companyWebsite || '';
                 } else if (user.role === 'Candidate') {
                     document.getElementById('candidate-section').style.display = 'block';
+                } else if (user.role === 'HiringManager') {
+                    document.getElementById('hiringmanager-section').style.display = 'block';
+                } else if (user.role === 'Admin') {
+                    document.getElementById('admin-section').style.display = 'block';
                 }
-
-                document.getElementById('profile-loading').style.display = 'none';
-                document.getElementById('profile-content').style.display = 'block';
             } catch (err) {
-                console.error("Failed to load profile", err);
-                document.getElementById('profile-loading').innerHTML = `<p style="color: var(--accent);">Failed to load profile details.</p>`;
+                console.error("Failed to load role-specific profile data", err);
+                // Don't block the page from showing — just log the error
             }
+
+            // Always show the profile content and hide loading
+            document.getElementById('profile-loading').style.display = 'none';
+            document.getElementById('profile-content').style.display = 'block';
         }
 
         async function handleSaveRecruiterProfile(e) {
@@ -124,9 +362,9 @@
                     companyDescription,
                     companyWebsite
                 });
-                alert("Company settings updated successfully!");
+                showSuccess("✅ Company settings updated successfully!");
             } catch (err) {
-                alert(`Failed to save settings: ${err.message}`);
+                showError(`Failed to save settings: ${err.message}`);
             }
         }
     </script>

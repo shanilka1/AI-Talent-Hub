@@ -95,6 +95,8 @@
                     <select id="register-role" class="form-input" onchange="toggleCompanyField()" required>
                         <option value="Candidate" selected>Job Seeker (Candidate)</option>
                         <option value="Recruiter">Recruiter (Employer)</option>
+                        <option value="HiringManager">Hiring Manager</option>
+                        <option value="Admin">Administrator</option>
                     </select>
                 </div>
 
@@ -121,6 +123,18 @@
         if (authService.isAuthenticated()) {
             redirectUser();
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if (role) {
+                const roleSelect = document.getElementById('register-role');
+                if (roleSelect) {
+                    roleSelect.value = role;
+                    toggleCompanyField();
+                }
+            }
+        });
 
         function switchTab(type) {
             document.getElementById('error-box').style.display = 'none';
@@ -189,12 +203,25 @@
         }
 
         function redirectUser() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+                return;
+            }
+
             const user = authService.getCurrentUser();
             if (user) {
                 if (user.role === 'Candidate') {
                     window.location.href = '/pages/candidate-dashboard.html';
                 } else if (user.role === 'Recruiter') {
                     window.location.href = '/pages/recruiter-dashboard.html';
+                } else if (user.role === 'HiringManager') {
+                    window.location.href = '/pages/hiring-manager-dashboard.html';
+                } else if (user.role === 'Admin') {
+                    window.location.href = '/pages/admin-dashboard.html';
+                } else {
+                    window.location.href = '/index.html';
                 }
             } else {
                 window.location.href = '/index.html';

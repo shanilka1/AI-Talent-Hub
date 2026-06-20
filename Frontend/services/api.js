@@ -29,12 +29,32 @@ async function request(endpoint, options = {}) {
             throw new Error('Unauthorized');
         }
 
-        // Handle empty response bodies
+        // Handle response body - safely parse JSON or fall back to plain text
         const text = await response.text();
-        const data = text ? JSON.parse(text) : {};
+        let data;
+        try {
+            data = text ? JSON.parse(text) : {};
+        } catch (e) {
+            // Response is plain text, not JSON
+            data = text;
+        }
         
         if (!response.ok) {
-            throw new Error(data.message || (typeof data === 'string' ? data : JSON.stringify(data)) || 'Something went wrong');
+            // Extract a readable error message from various backend response formats
+            let errorMsg = 'Something went wrong';
+            if (typeof data === 'string') {
+                errorMsg = data;
+            } else if (data.title) {
+                errorMsg = data.title;
+                // Check for validation errors object
+                if (data.errors) {
+                    const msgs = Object.values(data.errors).flat();
+                    if (msgs.length > 0) errorMsg = msgs.join(' ');
+                }
+            } else if (data.message) {
+                errorMsg = data.message;
+            }
+            throw new Error(errorMsg);
         }
         
         return data;
@@ -46,7 +66,7 @@ async function request(endpoint, options = {}) {
 
 const api = {
     get: (endpoint, options) => request(endpoint, { ...options, method: 'GET' }),
-    post: (endpoint, body, options) => request(endpoint, { ...options, method: 'POST', body: body }),
-    put: (endpoint, body, options) => request(endpoint, { ...options, method: 'PUT', body: body }),
+    post: (endpoint, body, options) => request(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) }),
+    put: (endpoint, body, options) => request(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) }),
     delete: (endpoint, options) => request(endpoint, { ...options, method: 'DELETE' })
 };

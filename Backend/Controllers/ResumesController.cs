@@ -155,5 +155,47 @@ namespace AITalentHub.Controllers
                 message = "Resume successfully parsed and skills updated in your profile."
             });
         }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadResume(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".txt" };
+            var ext = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(ext))
+            {
+                return BadRequest("Only .pdf, .doc, .docx, and .txt files are allowed.");
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Also update candidate profile's ResumePath
+            var userId = GetCurrentUserId();
+            var profile = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (profile != null)
+            {
+                profile.ResumePath = uniqueFileName;
+                profile.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new { filename = uniqueFileName, filePath = $"/uploads/{uniqueFileName}" });
+        }
     }
 }
