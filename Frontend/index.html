@@ -25,7 +25,7 @@
                 <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
                     Take your career to the next level with our intelligent resume parser. Paste your details to extract skills automatically, build a matching profile, and see visual compatibility scores for every job listing.
                 </p>
-                <a href="/pages/resume-builder.html" class="btn btn-primary btn-block">Build Smart Resume</a>
+                <a href="#" onclick="handleBuildResume(event)" class="btn btn-primary btn-block">Build Smart Resume</a>
             </div>
             
             <div class="card">
@@ -33,7 +33,7 @@
                 <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
                     Find the perfect match instantly. Post job opportunities and see candidates automatically ranked by their compatibility score calculated by our AI engine. Schedule interviews and manage hiring pipelines easily.
                 </p>
-                <a href="/pages/post-job.html" class="btn btn-primary btn-block">Post a Job Posting</a>
+                <a href="#" onclick="handlePostJob(event)" class="btn btn-primary btn-block">Post a Job Posting</a>
             </div>
         </section>
 
@@ -71,5 +71,35 @@
     <script src="/services/auth.js"></script>
     <script src="/components/navbar.js"></script>
     <script src="/components/footer.js"></script>
+
+    <script>
+        function handleBuildResume(e) {
+            e.preventDefault();
+            if (authService.isAuthenticated()) {
+                const user = authService.getCurrentUser();
+                if (user && user.role !== 'Candidate') {
+                    alert(`You are logged in as ${user.role}. Please log out and sign in as a Candidate to build a resume.`);
+                } else {
+                    window.location.href = '/pages/resume-builder.html';
+                }
+            } else {
+                window.location.href = '/pages/auth.html?role=Candidate&redirect=/pages/resume-builder.html';
+            }
+        }
+
+        function handlePostJob(e) {
+            e.preventDefault();
+            if (authService.isAuthenticated()) {
+                const user = authService.getCurrentUser();
+                if (user && (user.role !== 'Recruiter' && user.role !== 'HiringManager' && user.role !== 'Admin')) {
+                    alert(`You are logged in as ${user.role}. Please log out and sign in as a Recruiter to post jobs.`);
+                } else {
+                    window.location.href = '/pages/post-job.html';
+                }
+            } else {
+                window.location.href = '/pages/auth.html?role=Recruiter&redirect=/pages/post-job.html';
+            }
+        }
+    </script>
 </body>
 </html>

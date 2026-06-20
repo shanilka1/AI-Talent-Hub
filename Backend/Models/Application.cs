@@ -17,7 +17,7 @@ namespace AITalentHub.Models
         public string Status { get; set; } = "Applied"; // "Applied", "Reviewing", "Interviewing", "Offered", "Rejected"
         
         public double MatchScore { get; set; } = 0.0;
-        public string MatchExplanation { get; set; } = string.Empty; // Semicolon-separated details
+        public string MatchExplanation { get; set; } = "{}"; // JSON object with score, summary, details
         
         public string ResumeSnapshotJson { get; set; } = "{}"; // Snapshot of candidate details at application time
     }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj": {}
+    "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj": {
+    "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj",
+        "projectPath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj",
         "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\obj\\",
+        "outputPath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

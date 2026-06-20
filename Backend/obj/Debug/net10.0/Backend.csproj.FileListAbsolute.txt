@@ -156,3 +156,4 @@ C:\Users\USER\Documents\GitHub\AI-Talent-Hub\Backend\obj\Debug\net10.0\refint\Ba
 C:\Users\USER\Documents\GitHub\AI-Talent-Hub\Backend\obj\Debug\net10.0\Backend.pdb
 C:\Users\USER\Documents\GitHub\AI-Talent-Hub\Backend\obj\Debug\net10.0\Backend.genruntimeconfig.cache
 C:\Users\USER\Documents\GitHub\AI-Talent-Hub\Backend\obj\Debug\net10.0\ref\Backend.dll
+C:\Users\USER\Documents\GitHub\AI-Talent-Hub\Backend\bin\Debug\net10.0\Backend.staticwebassets.runtime.json

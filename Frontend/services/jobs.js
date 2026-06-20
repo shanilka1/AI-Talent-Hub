@@ -35,8 +35,42 @@ const jobsService = {
     },
 
     // Applications APIs
-    async applyForJob(jobPostId) {
-        return await api.post('/applications/apply', { jobPostId });
+    async applyForJob(applicationData) {
+        return await api.post('/applications/apply', applicationData);
+    },
+
+    async uploadResumeFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const token = localStorage.getItem('token');
+        const headers = {};
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        const response = await fetch(`${API_BASE_URL}/resumes/upload`, {
+            method: 'POST',
+            headers,
+            body: formData
+        });
+        if (!response.ok) {
+            const errText = await response.text();
+            let errorMsg = 'Failed to upload resume file';
+            try {
+                const parsed = JSON.parse(errText);
+                if (parsed.message) errorMsg = parsed.message;
+            } catch (e) {
+                if (errText) errorMsg = errText;
+            }
+            throw new Error(errorMsg);
+        }
+        return await response.json();
+    },
+
+    async updateInterviewFeedback(interviewId, feedback, rating) {
+        return await api.put(`/applications/interview/${interviewId}/feedback`, {
+            feedback,
+            candidateRating: parseInt(rating)
+        });
     },
 
     async getMyApplications() {
@@ -83,5 +117,31 @@ const jobsService = {
 
     async updateRecruiterProfile(profileData) {
         return await api.put('/profile/recruiter', profileData);
+    },
+
+    // Admin / Hiring Manager APIs
+    async getAdminStats() {
+        return await api.get('/admin/stats');
+    },
+
+    async getAllUsers(role = '') {
+        const query = role ? `?role=${role}` : '';
+        return await api.get(`/admin/users${query}`);
+    },
+
+    async updateUserRole(userId, role) {
+        return await api.put(`/admin/users/${userId}/role`, { role });
+    },
+
+    async deleteUser(userId) {
+        return await api.delete(`/admin/users/${userId}`);
+    },
+
+    async adminGetAllJobs() {
+        return await api.get('/admin/jobs');
+    },
+
+    async adminDeleteJob(jobId) {
+        return await api.delete(`/admin/jobs/${jobId}`);
     }
 };

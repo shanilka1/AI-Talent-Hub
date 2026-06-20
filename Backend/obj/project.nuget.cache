@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "zFPiUcHZCJc=",
+  "dgSpecHash": "bBpB6+/PkrU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj",
+  "projectFilePath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USER\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\10.0.9\\microsoft.aspnetcore.authentication.jwtbearer.10.0.9.nupkg.sha512",
@@ -52,9 +52,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'SQLitePCLRaw.lib.e_sqlite3' 2.1.11 has a known high severity vulnerability, https://github.com/advisories/GHSA-2m69-gcr7-jv3q",
-      "projectPath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj",
+      "projectPath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\Backend\\Backend.csproj",
+      "filePath": "C:\\Users\\USER\\Documents\\GitHub\\AI-Talent-Hub\\backend\\Backend.csproj",
       "libraryId": "SQLitePCLRaw.lib.e_sqlite3",
       "targetGraphs": [
         "net10.0"

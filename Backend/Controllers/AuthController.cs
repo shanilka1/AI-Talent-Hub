@@ -49,9 +49,9 @@ namespace AITalentHub.Controllers
             }
 
             dto.Role = dto.Role.Trim();
-            if (dto.Role != "Candidate" && dto.Role != "Recruiter")
+            if (dto.Role != "Candidate" && dto.Role != "Recruiter" && dto.Role != "HiringManager" && dto.Role != "Admin")
             {
-                return BadRequest("Role must be either 'Candidate' or 'Recruiter'.");
+                return BadRequest("Role must be 'Candidate', 'Recruiter', 'HiringManager', or 'Admin'.");
             }
 
             if (await _context.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower()))
@@ -83,7 +83,7 @@ namespace AITalentHub.Controllers
                 };
                 _context.CandidateProfiles.Add(candidate);
             }
-            else
+            else if (user.Role == "Recruiter" || user.Role == "HiringManager")
             {
                 var recruiter = new RecruiterProfile
                 {

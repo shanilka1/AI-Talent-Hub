@@ -33,6 +33,14 @@ function renderNavbar() {
                 <li><a href="/pages/recruiter-dashboard.html" id="nav-dashboard">Recruiter Dashboard</a></li>
                 <li><a href="/pages/post-job.html" id="nav-post-job">Post a Job</a></li>
             `;
+        } else if (user.role === 'HiringManager') {
+            navLinksHtml += `
+                <li><a href="/pages/hiring-manager-dashboard.html" id="nav-dashboard">Dashboard</a></li>
+            `;
+        } else if (user.role === 'Admin') {
+            navLinksHtml += `
+                <li><a href="/pages/admin-dashboard.html" id="nav-dashboard">Admin Dashboard</a></li>
+            `;
         }
         
         // Add profile link and logout button
@@ -67,6 +75,8 @@ function renderNavbar() {
         'job-search.html': 'nav-jobs',
         'candidate-dashboard.html': 'nav-dashboard',
         'recruiter-dashboard.html': 'nav-dashboard',
+        'hiring-manager-dashboard.html': 'nav-dashboard',
+        'admin-dashboard.html': 'nav-dashboard',
         'resume-builder.html': 'nav-resume',
         'post-job.html': 'nav-post-job',
         'profile.html': 'nav-profile',

@@ -27,6 +27,7 @@
         }
         .status-applied { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .status-reviewing { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-shortlisted { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border: 1px solid rgba(45, 212, 191, 0.3); }
         .status-interviewing { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
         .status-offered { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
         .status-rejected { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
@@ -98,7 +99,10 @@
         } else {
             const user = authService.getCurrentUser();
             if (user && user.role !== 'Candidate') {
-                window.location.href = '/pages/recruiter-dashboard.html';
+                if (user.role === 'Recruiter') window.location.href = '/pages/recruiter-dashboard.html';
+                else if (user.role === 'HiringManager') window.location.href = '/pages/hiring-manager-dashboard.html';
+                else if (user.role === 'Admin') window.location.href = '/pages/admin-dashboard.html';
+                else window.location.href = '/index.html';
             } else {
                 document.getElementById('welcome-title').textContent = `Welcome, ${user.fullName}`;
                 loadDashboardData();
@@ -163,6 +167,7 @@
                 container.innerHTML = apps.map(app => {
                     let statusClass = 'status-applied';
                     if (app.status.toLowerCase() === 'reviewing') statusClass = 'status-reviewing';
+                    if (app.status.toLowerCase() === 'shortlisted') statusClass = 'status-shortlisted';
                     if (app.status.toLowerCase() === 'interviewing') statusClass = 'status-interviewing';
                     if (app.status.toLowerCase() === 'offered') statusClass = 'status-offered';
                     if (app.status.toLowerCase() === 'rejected') statusClass = 'status-rejected';
@@ -195,13 +200,16 @@
 
                 container.innerHTML = interviews.map(i => {
                     const date = new Date(i.scheduledTime).toLocaleString();
+                    const ratingStars = i.candidateRating > 0 ? '⭐'.repeat(i.candidateRating) + ` (${i.candidateRating}/5)` : '';
                     return `
                         <div class="card" style="padding: 1.2rem; margin-bottom: 0.75rem;">
                             <h4 style="color: var(--secondary); margin-bottom: 0.25rem;">${i.jobTitle}</h4>
                             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Company: ${i.companyName}</p>
                             <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">📅 ${date}</p>
                             <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">📍 Location/Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--primary); text-decoration: none;">${i.locationOrLink}</a></p>
-                            ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px;">Note: ${i.notes}</p>` : ''}
+                            ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">Note: ${i.notes}</p>` : ''}
+                            ${ratingStars ? `<p style="font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text-secondary);">Rating: <span style="font-weight: bold; color: var(--secondary);">${ratingStars}</span></p>` : ''}
+                            ${i.feedback ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(16, 185, 129, 0.05); padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2);">Feedback: ${i.feedback}</p>` : ''}
                         </div>
                     `;
                 }).join('');
