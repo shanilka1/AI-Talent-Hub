@@ -5,16 +5,53 @@
 | Component | Platform | URL |
 |-----------|----------|-----|
 | **Frontend** | GitHub Pages | `https://shanilka1.github.io/AI-Talent-Hub/` |
-| **Backend API** | Render.com | `https://ai-talent-hub-api.onrender.com` |
+| **Backend API (Option A)** | Azure App Service (Free) | `https://ai-talent-hub-api.azurewebsites.net/` |
+| **Backend API (Option B)** | Render.com (Free) | `https://ai-talent-hub-api.onrender.com` |
 
 ---
 
-## Part 1: Deploy Backend to Render
+## Option A: Deploy Backend to Azure App Service (Recommended for SQLite persistence)
+
+Azure App Service (Free F1 SKU / Education) is a great free hosting option. Since it has a persistent `/home` directory, your SQLite database file will not be deleted when the application restarts.
+
+### Step 1 — Navigate to your App Service
+1. Open the [Azure Portal](https://portal.azure.com).
+2. In the top search bar, search for your App Service: **`ai-talent-hub-api`** and click it.
+
+### Step 2 — Configure Deployment Center
+1. In the left sidebar of your App Service page, click **Deployment Center** (under the **Deployment** section).
+2. Set the following settings:
+   - **Source**: Select **GitHub**. (If not authorized, click Authorize and log in to your GitHub account).
+   - **Organization**: Select your organization/username (e.g., `shanilka1`).
+   - **Repository**: Select **`AI-Talent-Hub`**.
+   - **Branch**: Select **`main`**.
+   - **Build provider**: Select **GitHub Actions**.
+3. Click the **Save** button at the top menu.
+
+### Step 3 — Pull and Update GitHub Actions Workflow (if it fails)
+Because the backend code is located inside the `Backend/` folder (and not the root), the auto-generated GitHub Actions workflow might fail. If it fails:
+1. I will help you pull the new workflow file that Azure commits to your repository.
+2. We will modify the workflow file to point to the `Backend` directory.
+3. We will push the fix to GitHub to make it build and deploy successfully.
+
+---
+
+## Option B: Deploy Backend to Render
+
+If you prefer Render, you can host the Docker container there.
 
 ### Step 1 — Create Render Account
 Go to [https://render.com](https://render.com) and sign up (free). Connect your GitHub account.
 
-### Step 2 — New Web Service
+### Step 2 — Fix "Repository not showing" on Render
+If you cannot see the `AI-Talent-Hub` repository when creating a new Web Service:
+1. On the Render repository connection page, click **"Configure GitHub App"** or **"Adjust permissions on GitHub"**.
+2. This will open GitHub. Scroll down to **Repository access**.
+3. Select **"Only select repositories"** and choose **`AI-Talent-Hub`** (or select **"All repositories"**).
+4. Click **Save**.
+5. Go back to Render, refresh, and the repository will now show up!
+
+### Step 3 — Create Web Service
 1. Click **"New +"** → **"Web Service"**
 2. Connect the repo: **`shanilka1/AI-Talent-Hub`**
 3. Fill in the settings:
@@ -27,7 +64,7 @@ Go to [https://render.com](https://render.com) and sign up (free). Connect your 
 | **Instance Type** | `Free` |
 | **Branch** | `main` |
 
-### Step 3 — Environment Variables
+### Step 4 — Environment Variables
 In the **Environment** tab, add these variables:
 
 | Key | Value |
@@ -37,58 +74,20 @@ In the **Environment** tab, add these variables:
 | `Jwt__Audience` | `AITalentHubUsers` |
 | `ConnectionStrings__DefaultConnection` | `Data Source=/app/data/aitalenthub.db` |
 
-> ⚠️ **Tip:** Change `Jwt__Key` to a new random secret before going live!
-
-### Step 4 — Deploy
-Click **"Create Web Service"**. Render will:
-1. Pull the code from GitHub
-2. Build the Docker image (~3-5 minutes)
-3. Start the container
-
-Once deployed, your API URL will be:  
-`https://ai-talent-hub-api.onrender.com`
-
-Test it: open `https://ai-talent-hub-api.onrender.com/` in browser → should show `AI Talent Hub API is running successfully!`
+### Step 5 — Deploy
+Click **"Create Web Service"**. Render will build and deploy the container (~3-5 minutes).
 
 ---
 
-## Part 2: Deploy Frontend to GitHub Pages
+## Part 3: Update Frontend API URL
 
-### Step 1 — Push to GitHub
-```bash
-git add .
-git commit -m "chore: add hosting config for GitHub Pages + Render"
-git push origin main
-```
+Depending on which platform you use, open **`Frontend/services/api.js`** and make sure the production URL matches your deployed API:
 
-This will automatically trigger the GitHub Actions workflow.
-
-### Step 2 — Enable GitHub Pages
-1. Go to your repo: `https://github.com/shanilka1/AI-Talent-Hub`
-2. Click **Settings** → **Pages** (left sidebar)
-3. Under **Source**, select:
-   - **Branch**: `gh-pages`
-   - **Folder**: `/ (root)`
-4. Click **Save**
-
-### Step 3 — Wait for Deployment
-- Go to **Actions** tab in your repo to watch the workflow run
-- After ~1-2 minutes, your site will be live at:
-
-`https://shanilka1.github.io/AI-Talent-Hub/`
-
----
-
-## Part 3: Update Render Service Name (if different)
-
-If your Render service gets a different URL (e.g., `ai-talent-hub-api-xxxx.onrender.com`), update the URL in:
-
-**`Frontend/services/api.js`** — line 4:
 ```js
-: 'https://YOUR-ACTUAL-RENDER-URL.onrender.com/api';
+const API_BASE_URL = IS_LOCAL
+    ? 'http://localhost:5260/api'
+    : 'https://YOUR-DEPLOYED-URL.onrender.com/api'; // Or .azurewebsites.net/api
 ```
-
-Then push again — GitHub Actions will redeploy the frontend automatically.
 
 ---
 
@@ -96,8 +95,8 @@ Then push again — GitHub Actions will redeploy the frontend automatically.
 
 | Issue | Cause | Fix |
 |-------|-------|-----|
-| Backend sleeps after 15 min idle | Render free tier | Upgrade to paid ($7/mo) or use UptimeRobot to ping every 10 min |
-| DB resets on redeploy | No persistent storage | Add Render Disk (paid) or use an external DB like Turso (free) |
+| Backend sleeps after 15 min idle (Render) | Render free tier | Upgrade to paid or use UptimeRobot to ping every 10 min |
+| DB resets on redeploy (Render Docker) | No persistent storage | Use Azure App Service or connect to an external DB like Turso (free) |
 | First request slow (~30s) | Cold start after sleep | Expected behavior on free tier |
 
 ---
@@ -116,3 +115,4 @@ Frontend:
 # Open Frontend/index.html with Live Server in VS Code
 # OR use any static file server
 ```
+
