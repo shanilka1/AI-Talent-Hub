@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Talent Hub - Comprehensive Project Report & System Documentation</title>
+    <style>
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 40px auto;
+            max-width: 950px;
+            padding: 0 20px;
+        }
+        h1, h2, h3, h4 {
+            color: #1b365d;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-weight: 600;
+        }
+        h1 {
+            border-bottom: 2.5px solid #1b365d;
+            padding-bottom: 12px;
+            margin-top: 50px;
+            font-size: 28px;
+            page-break-before: always;
+        }
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 6px;
+            margin-top: 35px;
+            font-size: 22px;
+        }
+        h3 {
+            font-size: 18px;
+            margin-top: 25px;
+            color: #2c5282;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 10px;
+        }
+        th {
+            background-color: #1b365d;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        code {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            background-color: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            border-left: 4px solid #1b365d;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            font-size: 13px;
+            color: #2b2b2b;
+        }
+        .screenshot-placeholder {
+            border: 2px dashed #009688;
+            background-color: #e0f2f1;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #00796b;
+        }
+        .screenshot-placeholder p {
+            margin: 8px 0 0 0;
+            font-size: 13px;
+            color: #455a64;
+            font-weight: normal;
+        }
+        .db-screenshot-placeholder {
+            border: 2px dashed #7b1fa2;
+            background-color: #f3e5f5;
+            padding: 25px;
+            margin: 15px 0;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #7b1fa2;
+        }
+        .db-screenshot-placeholder p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            color: #4a148c;
+            font-weight: normal;
+        }
+        .cover-page {
+            text-align: center;
+            padding: 120px 0;
+            margin-bottom: 80px;
+            border: 2.5px solid #1b365d;
+            background-color: #fcfdfe;
+            border-radius: 8px;
+        }
+        .cover-title {
+            font-size: 40px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #1b365d;
+            letter-spacing: 1px;
+        }
+        .cover-subtitle {
+            font-size: 20px;
+            margin-bottom: 60px;
+            color: #555555;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .cover-info {
+            font-size: 15px;
+            margin-top: 150px;
+            line-height: 2;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!--                 COVER PAGE                 -->
+    <!-- ========================================== -->
+    <div class="cover-page" style="page-break-after: always;">
+        <div class="cover-title">AI TALENT HUB</div>
+        <div class="cover-subtitle">AI-Powered Resume Builder & Job Matching Platform</div>
+        
+        <p style="font-size: 18px; font-weight: bold; margin-top: 40px; color: #2c5282;">SYSTEM DOCUMENTATION & FINAL PROJECT REPORT</p>
+        
+        <div class="cover-info">
+            <p><strong>Prepared for:</strong> Academic Evaluation Board</p>
+            <p><strong>Developed By (Team Members):</strong></p>
+            <p style="font-size: 16px; line-height: 1.8;">
+                <strong>Shanilka Lakshan</strong> (Group Leader)<br>
+                Kawya Dissanayaka | Darshana Chinthaka | Kavindi Perera | Minidu Mansara | Desanda Chathmal
+            </p>
+            <p><strong>Development Environment:</strong> ASP.NET Core REST API & SQLite Backend, JS Frontend</p>
+            <p><strong>Date:</strong> June 2026</p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!--             TABLE OF CONTENTS              -->
+    <!-- ========================================== -->
+    <h1>Table of Contents</h1>
+    <ol>
+        <li>Executive Summary</li>
+        <li>Introduction
+            <ul>
+                <li>2.1 Background</li>
+                <li>2.2 Problem Statement</li>
+                <li>2.3 Objectives</li>
+            </ul>
+        </li>
+        <li>System Requirements & Tech Stack</li>
+        <li>System Architecture</li>
+        <li>Database Design & Relational Tables
+            <ul>
+                <li>5.1 Users Table</li>
+                <li>5.2 Candidate Profiles Table</li>
+                <li>5.3 Recruiter Profiles Table</li>
+                <li>5.4 Job Vacancies Table</li>
+                <li>5.5 Applications Table</li>
+                <li>5.6 Technical Interviews Table</li>
+            </ul>
+        </li>
+        <li>Detailed Modules, User Interfaces & Code Analysis
+            <ul>
+                <li>6.1 Main Landing / Home Page</li>
+                <li>6.2 User Authentication & JWT Security</li>
+                <li>6.3 Candidate Portal & Dashboard</li>
+                <li>6.4 Online Resume Builder & Skill Parsing</li>
+                <li>6.5 Candidate Profile Manager</li>
+                <li>6.6 Job Search, Filtering & Applying</li>
+                <li>6.7 Recruiter Dashboard & Vacancy Management</li>
+                <li>6.8 Hiring Manager Dashboard</li>
+                <li>6.9 System Admin Dashboard</li>
+            </ul>
+        </li>
+        <li>Core Service Algorithms & Engines
+            <ul>
+                <li>7.1 AI Job Matching Engine Calculation Algorithm</li>
+                <li>7.2 Resume Skill Tag Extraction & Parser</li>
+            </ul>
+        </li>
+        <li>System Installation & Execution Guide</li>
+        <li>Conclusion and Future Enhancements</li>
+    </ol>
+
+    <!-- ========================================== -->
+    <!--             1. EXECUTIVE SUMMARY           -->
+    <!-- ========================================== -->
+    <h1>1. Executive Summary</h1>
+    <p>
+        <strong>AI Talent Hub</strong> is a modern, intelligent web-based recruitment management and candidate matching platform designed to connect job candidates with recruiters using artificial intelligence. The platform automates the process of resume parsing and candidate screening. 
+    </p>
+    <p>
+        By utilizing a rule-based keyword matching algorithm (AI Matching Engine), the backend assesses a candidate's skills, professional bio, work history, and academic qualifications against a recruiter's job requirements. This calculates a real-time suitability percentage. The platform also provides tools to build digital resumes, track application status, and schedule recruitment interviews.
+    </p>
+
+    <!-- ========================================== -->
+    <!--               2. INTRODUCTION              -->
+    <!-- ========================================== -->
+    <h1>2. Introduction</h1>
+    
+    <h2>2.1 Background</h2>
+    <p>
+        In contemporary recruitment workflows, HR personnel sift through hundreds of applications daily. The manual review process is slow, error-prone, and can result in missing qualified individuals. Thus, modern software tools must assist recruiters in filtering applications and prioritizing the most matching candidates.
+    </p>
+
+    <h2>2.2 Problem Statement</h2>
+    <p>
+        Traditional recruitment pipelines suffer from:
+    </p>
+    <ul>
+        <li><strong>High CV Volume:</strong> Manual evaluation of hundreds of applications per job posting is inefficient.</li>
+        <li><strong>Keyword Discrepancies:</strong> Recruiters struggle to determine if a candidate's background matches technical job specs without reading full portfolios.</li>
+        <li><strong>Disjointed Tracking:</strong> Candidates lack visibility into their application stages, and recruiters have to manage multiple tools for job postings, shortlisting, and technical interviews.</li>
+    </ul>
+
+    <h2>2.3 Objectives</h2>
+    <ul>
+        <li>Develop an integrated, web-based platform supporting candidate profiles and recruiter company interfaces.</li>
+        <li>Implement a secure role-based authentication module using JSON Web Tokens (JWT).</li>
+        <li>Build an automated matching module that compares job criteria and candidate data to yield a match rating.</li>
+        <li>Incorporate technical interview scheduling tools directly mapped to applications.</li>
+    </ul>
+
+    <!-- ========================================== -->
+    <!--          3. TECH STACK & REQUIREMENTS      -->
+    <!-- ========================================== -->
+    <h1>3. System Requirements & Tech Stack</h1>
+    <p>The system is developed using the following technological components:</p>
+    <table>
+        <tr>
+            <th>Component</th>
+            <th>Technology Used</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><strong>Frontend</strong></td>
+            <td>HTML5, CSS3, JavaScript (ES6+), Bootstrap 5</td>
+            <td>Responsive, clean user interfaces that communicate with the backend asynchronously using Fetch APIs.</td>
+        </tr>
+        <tr>
+            <td><strong>Backend</strong></td>
+            <td>ASP.NET Core 8.0 (C#) Web API</td>
+            <td>Secured, RESTful JSON web service handles controllers, business logic, and database access.</td>
+        </tr>
+        <tr>
+            <td><strong>ORM / Data Access</strong></td>
+            <td>Entity Framework Core (EF Core)</td>
+            <td>Facilitates object-relational mapping and database migrations.</td>
+        </tr>
+        <tr>
+            <td><strong>Database</strong></td>
+            <td>SQLite Database (aitalenthub.db)</td>
+            <td>Lightweight, relational data storage containing tables for system entities.</td>
+        </tr>
+        <tr>
+            <td><strong>Server Host</strong></td>
+            <td>Node.js Static Web Server</td>
+            <td>Uses a lightweight server script (<code>server.js</code>) to host and serve frontend pages locally.</td>
+        </tr>
+    </table>
+
+    <!-- ========================================== -->
+    <!--            4. SYSTEM ARCHITECTURE          -->
+    <!-- ========================================== -->
+    <h1>4. System Architecture</h1>
+    <p>
+        The system relies on a decoupled, client-server web API architecture. Communication between frontend views and backend REST controllers occurs exclusively via HTTP JSON payloads.
+    </p>
+    
+    <pre>
+┌───────────────────────────────────────────────┐
+│              Browser Frontend                 │
+│      (HTML5 / Bootstrap 5 / JavaScript)       │
+└───────────────────────┬───────────────────────┘
+                        │
+                        │ HTTP REST APIs (JSON Payload)
+                        ▼
+┌───────────────────────────────────────────────┐
+│             ASP.NET Core Web API              │
+│       Controllers, Matching Services, Auth    │
+└───────────────────────┬───────────────────────┘
+                        │
+                        │ Entity Framework Core
+                        ▼
+┌───────────────────────────────────────────────┐
+│               SQLite Database                 │
+│             (aitalenthub.db)                  │
+└───────────────────────────────────────────────┘
+    </pre>
+
+    <!-- ========================================== -->
+    <!--              5. DATABASE DESIGN            -->
+    <!-- ========================================== -->
+    <h1>5. Database Design & Relational Tables</h1>
+    <p>
+        The SQLite database schemas are defined in the entity classes of the backend models and mapped via <code>AppDbContext.cs</code>.
+    </p>
+
+    <h2>5.1 Users Table</h2>
+    <p>Stores master credentials and authentication role details.</p>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>INTEGER</td>
+            <td>Primary Key, Auto-Increment</td>
+            <td>Unique identifier for each user profile.</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>TEXT</td>
+            <td>Required, Unique</td>
+            <td>Login email ID of the user.</td>
+        </tr>
+        <tr>
+            <td>PasswordHash</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>SHA256 salted hash of the password.</td>
+        </tr>
+        <tr>
+            <td>FullName</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Full display name of the user.</td>
+        </tr>
+        <tr>
+            <td>Role</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Defines permissions ("Candidate", "Recruiter", "HiringManager", "Admin").</td>
+        </tr>
+        <tr>
+            <td>CreatedAt</td>
+            <td>DATETIME</td>
+            <td>Required</td>
+            <td>Timestamp when user registered.</td>
+        </tr>
+    </table>
+    <!-- Users DB Screenshot -->
+    <div class="db-screenshot-placeholder">
+        [DATABASE SCREENSHOT: Users Table Structure and Seed Data]
+        <p>Instructions: Open <code>aitalenthub.db</code> using SQLite DB Browser or Visual Studio. Open the 'Browse Data' view for the <strong>Users</strong> table, take a screenshot, and paste it here.</p>
+    </div>
+
+    <h2>5.2 Candidate Profiles Table</h2>
+    <p>Stores professional portfolios, skill sets, experience structures, and CV documents for applicants.</p>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>INTEGER</td>
+            <td>Primary Key</td>
+            <td>Unique identifier for candidate profiles.</td>
+        </tr>
+        <tr>
+            <td>UserId</td>
+            <td>INTEGER</td>
+            <td>Foreign Key -> Users(Id)</td>
+            <td>Links the profile to a user account.</td>
+        </tr>
+        <tr>
+            <td>Bio</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Brief introductory summary/overview of the applicant.</td>
+        </tr>
+        <tr>
+            <td>Skills</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Semicolon-delimited skill tags (e.g. C#;SQL;React).</td>
+        </tr>
+        <tr>
+            <td>ExperienceJson</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>JSON array string containing job experience history.</td>
+        </tr>
+        <tr>
+            <td>EducationJson</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>JSON array string containing educational background.</td>
+        </tr>
+        <tr>
+            <td>ResumePath</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Path/Filename of the uploaded PDF or Docx CV.</td>
+        </tr>
+        <tr>
+            <td>UpdatedAt</td>
+            <td>DATETIME</td>
+            <td>Required</td>
+            <td>Timestamp of latest profile modification.</td>
+        </tr>
+    </table>
+    <!-- CandidateProfiles DB Screenshot -->
+    <div class="db-screenshot-placeholder">
+        [DATABASE SCREENSHOT: CandidateProfiles Table Data Structure]
+        <p>Instructions: Browse data for the <strong>CandidateProfiles</strong> table in your SQLite DB browser, take a screenshot, and paste it here.</p>
+    </div>
+
+    <h2>5.3 Recruiter Profiles Table</h2>
+    <p>Maintains information about recruiters and hiring managers' organizations.</p>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>INTEGER</td>
+            <td>Primary Key</td>
+            <td>Unique identifier for recruiter profiles.</td>
+        </tr>
+        <tr>
+            <td>UserId</td>
+            <td>INTEGER</td>
+            <td>Foreign Key -> Users(Id)</td>
+            <td>Links profile to recruiter user account.</td>
+        </tr>
+        <tr>
+            <td>CompanyName</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Hiring entity name.</td>
+        </tr>
+        <tr>
+            <td>CompanyDescription</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Brief description of company operations.</td>
+        </tr>
+        <tr>
+            <td>CompanyWebsite</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Website link.</td>
+        </tr>
+    </table>
+    <!-- RecruiterProfiles DB Screenshot -->
+    <div class="db-screenshot-placeholder">
+        [DATABASE SCREENSHOT: RecruiterProfiles Table View]
+        <p>Instructions: Browse data for the <strong>RecruiterProfiles</strong> table in your SQLite DB browser, take a screenshot, and paste it here.</p>
+    </div>
+
+    <h2>5.4 Job Vacancies Table (JobPosts)</h2>
+    <p>Contains details and core requirements for job listings posted by recruiters.</p>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>INTEGER</td>
+            <td>Primary Key</td>
+            <td>Unique job vacancy code.</td>
+        </tr>
+        <tr>
+            <td>RecruiterProfileId</td>
+            <td>INTEGER</td>
+            <td>Foreign Key -> RecruiterProfiles(Id)</td>
+            <td>Company posting the vacancy.</td>
+        </tr>
+        <tr>
+            <td>Title</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Designation name.</td>
+        </tr>
+        <tr>
+            <td>Description</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Job description guidelines.</td>
+        </tr>
+        <tr>
+            <td>Requirements</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Semicolon-delimited skills requested (e.g. Docker;Git).</td>
+        </tr>
+        <tr>
+            <td>Location</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Physical city or Remote.</td>
+        </tr>
+        <tr>
+            <td>JobType</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Employment type (Full-Time, Part-Time, Contract).</td>
+        </tr>
+        <tr>
+            <td>SalaryRange</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Estimated remuneration limits.</td>
+        </tr>
+        <tr>
+            <td>CreatedAt</td>
+            <td>DATETIME</td>
+            <td>Required</td>
+            <td>Date of listing.</td>
+        </tr>
+    </table>
+    <!-- JobPosts DB Screenshot -->
+    <div class="db-screenshot-placeholder">
+        [DATABASE SCREENSHOT: JobPosts Table View]
+        <p>Instructions: Browse data for the <strong>JobPosts</strong> table in your SQLite DB browser, take a screenshot, and paste it here.</p>
+    </div>
+
+    <h2>5.5 Applications Table</h2>
+    <p>Stores the candidate applications, matching algorithm outputs, and static resume snapshots.</p>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>INTEGER</td>
+            <td>Primary Key</td>
+            <td>Unique application registration code.</td>
+        </tr>
+        <tr>
+            <td>JobPostId</td>
+            <td>INTEGER</td>
+            <td>Foreign Key -> JobPosts(Id)</td>
+            <td>Applied position.</td>
+        </tr>
+        <tr>
+            <td>CandidateProfileId</td>
+            <td>INTEGER</td>
+            <td>Foreign Key -> CandidateProfiles(Id)</td>
+            <td>Applicant record ID.</td>
+        </tr>
+        <tr>
+            <td>AppliedAt</td>
+            <td>DATETIME</td>
+            <td>Required</td>
+            <td>Timestamp when applied.</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>"Applied", "Reviewing", "Interviewing", "Offered", "Rejected".</td>
+        </tr>
+        <tr>
+            <td>MatchScore</td>
+            <td>REAL</td>
+            <td>Required</td>
+            <td>Score output (0.0 to 100.0) from Matching Algorithm.</td>
+        </tr>
+        <tr>
+            <td>MatchExplanation</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>JSON metadata details representing missing/matched skills.</td>
+        </tr>
+        <tr>
+            <td>ResumeSnapshotJson</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Snapshot of the applicant's credentials at application time.</td>
+        </tr>
+    </table>
+    <!-- Applications DB Screenshot -->
+    <div class="db-screenshot-placeholder">
+        [DATABASE SCREENSHOT: Applications Table View]
+        <p>Instructions: Browse data for the <strong>Applications</strong> table in your SQLite DB browser, take a screenshot, and paste it here. Make sure to capture the <code>MatchScore</code> values.</p>
+    </div>
+
+    <h2>5.6 Technical Interviews Table</h2>
+    <p>Stores dates, virtual links, and interview evaluations.</p>
+    <table>
+        <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Id</td>
+            <td>INTEGER</td>
+            <td>Primary Key</td>
+            <td>Unique interview schedule code.</td>
+        </tr>
+        <tr>
+            <td>ApplicationId</td>
+            <td>INTEGER</td>
+            <td>Foreign Key -> Applications(Id)</td>
+            <td>Linked application process.</td>
+        </tr>
+        <tr>
+            <td>ScheduledTime</td>
+            <td>DATETIME</td>
+            <td>Required</td>
+            <td>Assigned date/time.</td>
+        </tr>
+        <tr>
+            <td>LocationOrLink</td>
+            <td>TEXT</td>
+            <td>Required</td>
+            <td>Physical meeting venue or Online Meeting Link (Teams/Meet).</td>
+        </tr>
+        <tr>
+            <td>Notes</td>
+            <td>TEXT</td>
+            <td>Optional</td>
+            <td>Preparatory details, syllabus, or post-interview feedback.</td>
+        </tr>
+        <tr>
+            <td>CreatedAt</td>
+            <td>DATETIME</td>
+            <td>Required</td>
+            <td>Created date stamp.</td>
+        </tr>
+    </table>
+    <!-- Interviews DB Screenshot -->
+    <div class="db-screenshot-placeholder">
+        [DATABASE SCREENSHOT: Interviews Table View]
+        <p>Instructions: Browse data for the <strong>Interviews</strong> table in your SQLite DB browser, take a screenshot, and paste it here.</p>
+    </div>
+
+    <!-- ========================================== -->
+    <!--       6. DETAILED MODULES & INTERFACES     -->
+    <!-- ========================================== -->
+    <h1>6. Detailed Modules, User Interfaces & Code Analysis</h1>
+    <p>
+        This section describes each view in the system, its features, and shows where to place the UI screenshots.
+    </p>
+
+    <h2>6.1 Main Landing / Home Page</h2>
+    <p>
+        The home page (<code>index.html</code>) serves as the entry point for the application. It outlines system features, provides CTA (Call to Action) buttons for logging in and signing up, and links directly to the job search view.
+    </p>
+    <!-- Home Page UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Main Landing / Home Page (index.html)]
+        <p>Instructions: Open <strong>http://localhost:3000/index.html</strong> in your browser, capture a screenshot of the landing page, and paste it here.</p>
+    </div>
+
+    <h2>6.2 User Authentication & JWT Security</h2>
+    <p>
+        The auth page (<code>auth.html</code>) contains a responsive tabbed layout to sign up new candidate/recruiter accounts or log in. Once logged in, a JWT bearer token is stored inside the browser's <code>localStorage</code>.
+    </p>
+    <!-- Auth UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Authentication Screen (auth.html) - Login & Signup views]
+        <p>Instructions: Navigate to <strong>http://localhost:3000/pages/auth.html</strong>, take a screenshot of the login screen, and paste it here.</p>
+    </div>
+
+    <h2>6.3 Candidate Portal & Dashboard</h2>
+    <p>
+        The candidate dashboard (<code>candidate-dashboard.html</code>) is personalized for job seekers. It features a list of applied vacancies, current status tags (e.g. <code>Interviewing</code>, <code>Applied</code>), AI match percentage values, and scheduled interview details.
+    </p>
+    <!-- Candidate Dashboard UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Candidate Dashboard (candidate-dashboard.html)]
+        <p>Instructions: Log in using <code>candidate@example.com</code> / <code>password123</code>. Take a screenshot of the dashboard page showing applied vacancies, and paste it here.</p>
+    </div>
+
+    <h2>6.4 Online Resume Builder & Skill Parsing</h2>
+    <p>
+        The Resume Builder page (<code>resume-builder.html</code>) enables candidates to compile their experience, education, and skills. They can also paste raw text resumes, which are parsed by the backend to extract skills automatically.
+    </p>
+    <!-- Resume Builder UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Online Resume Builder & Parsing Page (resume-builder.html)]
+        <p>Instructions: From the candidate dashboard, click on 'Resume Builder' or navigate to <strong>http://localhost:3000/pages/resume-builder.html</strong>. Take a screenshot showing input fields and the resume parser section, and paste here.</p>
+    </div>
+
+    <h2>6.5 Candidate Profile Manager</h2>
+    <p>
+        The Profile page (<code>profile.html</code>) allows candidates to update their contact details, professional bio, and upload physical resume files (PDF, DOCX, TXT).
+    </p>
+    <!-- Profile UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Candidate Profile Edit Page (profile.html)]
+        <p>Instructions: Navigate to <strong>http://localhost:3000/pages/profile.html</strong> as a logged-in candidate, take a screenshot of the profile settings, and paste here.</p>
+    </div>
+
+    <h2>6.6 Job Search, Filtering & Applying</h2>
+    <p>
+        The job search page (<code>job-search.html</code>) lets users browse vacancies. Clicking a job card opens the details page (<code>job-details.html</code>), where candidates can review salary packages, locations, and requirements before applying.
+    </p>
+    <!-- Job Search UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Job Search Board (job-search.html)]
+        <p>Instructions: Navigate to <strong>http://localhost:3000/pages/job-search.html</strong>, take a screenshot of the vacancy list, and paste here.</p>
+    </div>
+    <!-- Job Details UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Job Details and Application Form (job-details.html)]
+        <p>Instructions: Click on any job card from the search list to load the details. Capture the job specifications and the application submission form, and paste here.</p>
+    </div>
+
+    <h2>6.7 Recruiter Dashboard & Vacancy Management</h2>
+    <p>
+        The recruiter dashboard (<code>recruiter-dashboard.html</code>) serves as the employer interface. Employers can view posted jobs, applicant lists, matching scores, and schedule interviews. They can also post new listings using the job creation form (<code>post-job.html</code>).
+    </p>
+    <!-- Recruiter Dashboard UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Recruiter Main Dashboard (recruiter-dashboard.html)]
+        <p>Instructions: Log in using <code>recruiter@example.com</code> / <code>password123</code>. Take a screenshot of the main recruiter home screen displaying job postings, and paste it here.</p>
+    </div>
+    <!-- Recruiter Applicants list UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Recruiter Applicant Review & AI Scoring Interface]
+        <p>Instructions: On the recruiter dashboard, click on the applicant list for a posted job. Take a screenshot of the list displaying candidate names and their calculated <strong>AI Match Scores</strong>, and paste it here.</p>
+    </div>
+    <!-- Post Job UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Post Job Vacancy Form (post-job.html)]
+        <p>Instructions: Navigate to <strong>http://localhost:3000/pages/post-job.html</strong> or click 'Post New Job' on the recruiter dashboard. Take a screenshot of the form, and paste here.</p>
+    </div>
+
+    <h2>6.8 Hiring Manager Dashboard</h2>
+    <p>
+        The Hiring Manager dashboard (<code>hiring-manager-dashboard.html</code>) allows hiring managers to review job details, assess candidates, and submit ratings and feedback for technical interviews.
+    </p>
+    <!-- Hiring Manager Dashboard UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: Hiring Manager Portal (hiring-manager-dashboard.html)]
+        <p>Instructions: Log in as a Hiring Manager (or adjust a user's role to HiringManager via Admin Panel, then log in). Take a screenshot of the dashboard, and paste here.</p>
+    </div>
+
+    <h2>6.9 System Admin Dashboard</h2>
+    <p>
+        The admin dashboard (<code>admin-dashboard.html</code>) provides administrators with overview statistics (user count, active jobs, applications) and tools to update roles or delete records.
+    </p>
+    <!-- Admin Dashboard UI Screenshot -->
+    <div class="screenshot-placeholder">
+        [UI SCREENSHOT: System Admin Dashboard (admin-dashboard.html)]
+        <p>Instructions: Access the admin panel (make sure you log in with an Admin account or update a mock user's role to Admin), take a screenshot, and paste here.</p>
+    </div>
+
+    <!-- ========================================== -->
+    <!--          7. CORE SERVICE ALGORITHMS        -->
+    <!-- ========================================== -->
+    <h1>7. Core Service Algorithms & Engines</h1>
+
+    <h2>7.1 AI Job Matching Engine Calculation Algorithm</h2>
+    <p>
+        The matching percentage represents the ratio of candidate skills matching the job post specifications. 
+        The algorithm works as follows:
+    </p>
+    <ol>
+        <li>Splits the job requirements string into list of keywords.</li>
+        <li>Checks if the keywords are present in candidate's skills list.</li>
+        <li>If not, it performs a secondary case-insensitive text check in the candidate's experience history JSON, bio, and educational records.</li>
+        <li>Calculates the score using the formula:</li>
+    </ol>
+    <div style="background-color: #f8f9fa; padding: 15px; text-align: center; border-radius: 4px; font-weight: bold; margin: 15px 0;">
+        Match Score % = (Count of Matched Skills / Total Job Requirements) * 100
+    </div>
+    
+    <p><strong>C# Matching Logic Code (from <code>MatchingService.cs</code>):</strong></p>
+    <pre><code>double score = (double)matchedSkills.Count / requirements.Count * 100;
+score = Math.Round(score, 1);
+
+var result = new
+{
+    score = score,
+    summary = $"Candidate matches {matchedSkills.Count} out of {requirements.Count} job requirements ({score}%).",
+    matches = matchedSkills,
+    missing = missingSkills,
+    details = explanationNotes
+};</code></pre>
+
+    <h2>7.2 Resume Skill Tag Extraction & Parser</h2>
+    <p>
+        The <code>ResumesController.cs</code> implements an automated parser. Paste-in text resumes are scanned for high-demand developer skill tags. Match hits are automatically populated to the candidate's skills database.
+    </p>
+    <p><strong>Heuristic Parsing Logic (Snippet from <code>ResumesController.cs</code>):</strong></p>
+    <pre><code>var commonSkills = new List&lt;string&gt; {
+    "C#", ".NET", "ASP.NET Core", "React", "Angular", "Vue", "JavaScript", "TypeScript", 
+    "HTML", "CSS", "SQL", "Microsoft SQL Server", "SQLite", "Python", "Java", "Git", "GitHub"
+};
+
+var extractedSkills = new List&lt;string&gt;();
+foreach (var skill in commonSkills)
+{
+    if (dto.ResumeText.Contains(skill, StringComparison.OrdinalIgnoreCase))
+    {
+        extractedSkills.Add(skill);
+    }
+}
+// Skills are saved automatically as a semicolon-separated string
+profile.Skills = string.Join(";", profile.Skills.Split(';').Union(extractedSkills).Distinct());</code></pre>
+
+    <!-- ========================================== -->
+    <!--            8. SETUP & DEPLOYMENT           -->
+    <!-- ========================================== -->
+    <h1>8. System Installation & Execution Guide</h1>
+    <p>To run the application locally, verify the following setup stages:</p>
+    
+    <h3>Prerequisites</h3>
+    <ul>
+        <li>Node.js (v18 or higher) installed.</li>
+        <li>.NET SDK 8.0 installed.</li>
+    </ul>
+
+    <h3>Step 1: Setup Backend database and launch Web API</h3>
+    <pre><code>cd Backend
+dotnet run</code></pre>
+    <p>
+        This command installs dependencies, ensures the SQLite database file <code>aitalenthub.db</code> is created, triggers the database seeder to populate mock profiles, and launches the ASP.NET Core server.
+    </p>
+
+    <h3>Step 2: Launch Frontend Server</h3>
+    <pre><code># Open a new terminal in the project root directory
+node server.js</code></pre>
+    <p>This launches the frontend server, listening at <strong>http://localhost:3000</strong>.</p>
+
+    <!-- ========================================== -->
+    <!--           9. CONCLUSION & FUTURE           -->
+    <!-- ========================================== -->
+    <h1>9. Conclusion and Future Enhancements</h1>
+    <p>
+        AI Talent Hub successfully addresses the problems of manual candidate screening by integrating profile management, job posting, automatic resume parsing, and algorithmic matching into one seamless workflow.
+    </p>
+    <p>Future development phases will target:</p>
+    <ul>
+        <li><strong>Semantic AI Model Matching:</strong> Integrating deep-learning models (like LLMs) to match candidates based on contextual semantics rather than simple keyword matches.</li>
+        <li><strong>PDF Text Extraction:</strong> Implementing a file parsing engine in the backend controller to automatically read text from PDF documents.</li>
+        <li><strong>Automated Coding Assessments:</strong> Setting up coding tests that score applicant answers automatically.</li>
+    </ul>
+
+</body>
+</html>

@@ -1,4 +1,8 @@
-const API_BASE_URL = 'http://localhost:5260/api';
+// Auto-detect environment: use local backend in development, Render in production
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = IS_LOCAL
+    ? 'http://localhost:5260/api'
+    : 'https://ai-talent-hub-api.onrender.com/api';
 
 async function request(endpoint, options = {}) {
     const token = localStorage.getItem('token');
