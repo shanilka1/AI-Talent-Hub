@@ -1,0 +1,18 @@
+# Visual Studio & .NET folders
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Node (if any)
+node_modules/
+
+# Mac
+.DS_Store
