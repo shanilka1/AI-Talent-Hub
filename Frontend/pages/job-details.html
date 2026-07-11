@@ -406,6 +406,17 @@
                     eduList.forEach(item => addApplyEducationRow(item.degree, item.school, item.year));
                 }
 
+                // Clear and load projects
+                document.getElementById('apply-projects-container').innerHTML = '';
+                const projList = Array.isArray(profile.projects) ? profile.projects : [];
+                if (projList.length === 0) {
+                    if (typeof addApplyProjectRow === 'function') addApplyProjectRow();
+                } else {
+                    projList.forEach(item => {
+                        if (typeof addApplyProjectRow === 'function') addApplyProjectRow(item.name, item.description, item.technologies);
+                    });
+                }
+
                 // If candidate has an uploaded file in profile, set it as default
                 if (profile.resumePath) {
                     document.getElementById('apply-attached-filename').value = profile.resumePath;

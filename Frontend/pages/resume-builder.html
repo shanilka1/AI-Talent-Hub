@@ -114,6 +114,15 @@
                         <!-- Education items generated here -->
                     </div>
 
+                    <!-- Projects -->
+                    <div class="section-header" style="margin-top: 2rem;">
+                        <h4>Projects</h4>
+                        <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.3rem 0.6rem;" onclick="addProjectRow()">+ Add</button>
+                    </div>
+                    <div id="project-rows-container">
+                        <!-- Project items generated here -->
+                    </div>
+
                     <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
                         <button class="btn btn-secondary" style="flex: 1;" onclick="clearForm()">Clear Form</button>
                         <button class="btn btn-primary" style="flex: 2;" onclick="saveProfile()">Save Smart Profile</button>
@@ -144,6 +153,11 @@
                     <h3>Education</h3>
                     <div id="preview-education">
                         <p class="preview-text" style="color: #94a3b8;">No education credentials added.</p>
+                    </div>
+
+                    <h3>Projects & Portfolio</h3>
+                    <div id="preview-projects">
+                        <p class="preview-text" style="color: #94a3b8;">No projects added.</p>
                     </div>
                 </div>
                 
@@ -208,6 +222,16 @@
                     eduList.forEach(item => addEducationRow(item.degree, item.school, item.year));
                 }
 
+                // Load projects
+                const projContainer = document.getElementById('project-rows-container');
+                projContainer.innerHTML = '';
+                const projList = Array.isArray(profile.projects) ? profile.projects : [];
+                if (projList.length === 0) {
+                    addProjectRow(); // Add one blank row
+                } else {
+                    projList.forEach(item => addProjectRow(item.name, item.description, item.technologies));
+                }
+
                 updatePreview();
             } catch (err) {
                 console.error("Failed to load profile data", err);
@@ -270,6 +294,32 @@
             updatePreview();
         }
 
+        function addProjectRow(name = '', description = '', technologies = '') {
+            const container = document.getElementById('project-rows-container');
+            const rowId = 'proj-row-' + Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const row = document.createElement('div');
+            row.className = 'entry-row';
+            row.id = rowId;
+            row.innerHTML = `
+                <button class="remove-btn" onclick="removeRow('${rowId}')">&times;</button>
+                <div class="form-group">
+                    <label class="form-label">Project Name</label>
+                    <input type="text" class="form-input proj-name" value="${name}" placeholder="E-Commerce API" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Short Description</label>
+                    <textarea class="form-input proj-desc" placeholder="Built a highly scalable REST API..." oninput="updatePreview()">${description}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Technologies Used</label>
+                    <input type="text" class="form-input proj-tech" value="${technologies}" placeholder="Node.js, Express, MongoDB" oninput="updatePreview()">
+                </div>
+            `;
+            container.appendChild(row);
+            updatePreview();
+        }
+
         function removeRow(rowId) {
             const el = document.getElementById(rowId);
             if (el) el.remove();
@@ -282,9 +332,11 @@
             document.getElementById('candidate-skills').value = '';
             document.getElementById('experience-rows-container').innerHTML = '';
             document.getElementById('education-rows-container').innerHTML = '';
+            document.getElementById('project-rows-container').innerHTML = '';
             
             addExperienceRow();
             addEducationRow();
+            addProjectRow();
             
             updatePreview();
         }
@@ -347,6 +399,20 @@
             return data;
         }
 
+        function getProjectData() {
+            const rows = document.querySelectorAll('#project-rows-container .entry-row');
+            const data = [];
+            rows.forEach(row => {
+                const name = row.querySelector('.proj-name').value;
+                const description = row.querySelector('.proj-desc').value;
+                const technologies = row.querySelector('.proj-tech').value;
+                if (name || description) {
+                    data.push({ name, description, technologies });
+                }
+            });
+            return data;
+        }
+
         function updatePreview() {
             // Set header
             document.getElementById('preview-name').textContent = candidateName || 'Your Name';
@@ -403,6 +469,21 @@
             } else {
                 eduContainer.innerHTML = '<p class="preview-text" style="color: #94a3b8;">No education added.</p>';
             }
+
+            // Set Projects
+            const projList = getProjectData();
+            const projContainer = document.getElementById('preview-projects');
+            if (projList.length > 0) {
+                projContainer.innerHTML = projList.map(item => `
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.15rem; color: #1e1b4b;">${item.name || 'Project Name'}</h4>
+                        <p style="font-size: 0.85rem; font-weight: 500; color: #4f46e5; margin-bottom: 0.3rem;">${item.technologies || 'Technologies'}</p>
+                        <p class="preview-text" style="margin-top: 0.2rem; font-size: 0.9rem;">${item.description || ''}</p>
+                    </div>
+                `).join('');
+            } else {
+                projContainer.innerHTML = '<p class="preview-text" style="color: #94a3b8;">No projects added.</p>';
+            }
         }
 
         async function saveProfile() {
@@ -411,6 +492,7 @@
             const rawResumeText = document.getElementById('raw-resume-text').value;
             const experience = getExperienceData();
             const education = getEducationData();
+            const projects = getProjectData();
 
             try {
                 await jobsService.updateMyProfile({
@@ -418,7 +500,8 @@
                     skills,
                     rawResumeText,
                     experienceJson: JSON.stringify(experience),
-                    educationJson: JSON.stringify(education)
+                    educationJson: JSON.stringify(education),
+                    projectsJson: JSON.stringify(projects)
                 });
                 alert("Smart resume profile saved successfully!");
                 window.location.href = '/pages/candidate-dashboard.html';

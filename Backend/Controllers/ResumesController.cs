@@ -40,6 +40,7 @@ namespace AITalentHub.Controllers
             public string Skills { get; set; } = string.Empty;
             public string ExperienceJson { get; set; } = "[]";
             public string EducationJson { get; set; } = "[]";
+            public string ProjectsJson { get; set; } = "[]";
             public string? RawResumeText { get; set; }
         }
 
@@ -60,6 +61,8 @@ namespace AITalentHub.Controllers
             public List<object> Experience { get; set; } = new List<object>();
             [JsonPropertyName("education")]
             public List<object> Education { get; set; } = new List<object>();
+            [JsonPropertyName("projects")]
+            public List<object> Projects { get; set; } = new List<object>();
         }
 
         private int GetCurrentUserId()
@@ -93,8 +96,9 @@ namespace AITalentHub.Controllers
                 email = profile.User?.Email,
                 bio = profile.Bio,
                 skills = profile.Skills,
-                experience = JsonSerializer.Deserialize<object>(profile.ExperienceJson),
-                education = JsonSerializer.Deserialize<object>(profile.EducationJson),
+                experience = JsonSerializer.Deserialize<object>(profile.ExperienceJson ?? "[]"),
+                education = JsonSerializer.Deserialize<object>(profile.EducationJson ?? "[]"),
+                projects = JsonSerializer.Deserialize<object>(profile.ProjectsJson ?? "[]"),
                 resumePath = profile.ResumePath,
                 rawResumeText = profile.RawResumeText,
                 updatedAt = profile.UpdatedAt
@@ -114,8 +118,9 @@ namespace AITalentHub.Controllers
 
             profile.Bio = dto.Bio;
             profile.Skills = dto.Skills;
-            profile.ExperienceJson = dto.ExperienceJson;
-            profile.EducationJson = dto.EducationJson;
+            profile.ExperienceJson = dto.ExperienceJson ?? "[]";
+            profile.EducationJson = dto.EducationJson ?? "[]";
+            profile.ProjectsJson = dto.ProjectsJson ?? "[]";
             
             if (!string.IsNullOrEmpty(dto.RawResumeText))
             {
@@ -148,7 +153,8 @@ namespace AITalentHub.Controllers
   ""bio"": ""A short 1-2 sentence professional summary."",
   ""skills"": [""Skill1"", ""Skill2""],
   ""experience"": [ { ""title"": ""Job Title"", ""company"": ""Company Name"", ""years"": ""e.g. 2020-2023"" } ],
-  ""education"": [ { ""degree"": ""Degree Name"", ""school"": ""University"", ""year"": ""e.g. 2019"" } ]
+  ""education"": [ { ""degree"": ""Degree Name"", ""school"": ""University"", ""year"": ""e.g. 2019"" } ],
+  ""projects"": [ { ""name"": ""Project Name"", ""description"": ""Short description"", ""technologies"": ""Tech stack used"" } ]
 }
 Resume Text:
 " + dto.ResumeText;
@@ -220,6 +226,11 @@ Resume Text:
                     if (parsed.Education != null)
                     {
                         profile.EducationJson = JsonSerializer.Serialize(parsed.Education);
+                    }
+
+                    if (parsed.Projects != null)
+                    {
+                        profile.ProjectsJson = JsonSerializer.Serialize(parsed.Projects);
                     }
 
                     profile.RawResumeText = dto.ResumeText;

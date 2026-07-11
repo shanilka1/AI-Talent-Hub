@@ -67,6 +67,10 @@ using (var scope = app.Services.CreateScope())
     try {
         dbContext.Database.ExecuteSqlRaw("ALTER TABLE CandidateProfiles ADD COLUMN RawResumeText LONGTEXT;");
     } catch { } // Ignore if column already exists
+    
+    try {
+        dbContext.Database.ExecuteSqlRaw("ALTER TABLE CandidateProfiles ADD COLUMN ProjectsJson LONGTEXT;");
+    } catch { } // Ignore if column already exists
 
     AITalentHub.Data.DbInitializer.Seed(dbContext);
 }
