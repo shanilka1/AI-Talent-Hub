@@ -179,30 +179,31 @@ namespace AITalentHub.Controllers
 
             // Update candidate profile with these parsed values automatically!
             var userId = GetCurrentUserId();
+            var user = await _context.Users.FindAsync(userId);
             var profile = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
+            
             if (profile != null)
             {
-                var currentSkills = profile.Skills ?? string.Empty;
-                profile.Skills = string.Join(";", (currentSkills.Split(';', StringSplitOptions.RemoveEmptyEntries)
-                                                         .Union(extractedSkills))
-                                                         .Distinct());
-                if (string.IsNullOrWhiteSpace(profile.Bio) || profile.Bio == "Hello! I am a new candidate.")
+                profile.Skills = string.Join(";", extractedSkills);
+                
+                if (lines.Length > 0 && lines[0].Split(' ').Length <= 4)
                 {
-                    profile.Bio = $"Experienced professional. Parsed Summary: {summary}";
+                    if (user != null)
+                    {
+                        user.FullName = lines[0].Trim();
+                    }
                 }
+
+                profile.Bio = $"Experienced professional. Parsed Summary: {summary}";
 
                 if (experiences.Count > 0)
                 {
-                    var currentExp = JsonSerializer.Deserialize<List<object>>(profile.ExperienceJson ?? "[]") ?? new List<object>();
-                    currentExp.AddRange(experiences);
-                    profile.ExperienceJson = JsonSerializer.Serialize(currentExp);
+                    profile.ExperienceJson = JsonSerializer.Serialize(experiences);
                 }
 
                 if (educations.Count > 0)
                 {
-                    var currentEdu = JsonSerializer.Deserialize<List<object>>(profile.EducationJson ?? "[]") ?? new List<object>();
-                    currentEdu.AddRange(educations);
-                    profile.EducationJson = JsonSerializer.Serialize(currentEdu);
+                    profile.EducationJson = JsonSerializer.Serialize(educations);
                 }
 
                 profile.UpdatedAt = DateTime.UtcNow;

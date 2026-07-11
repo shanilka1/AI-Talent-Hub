@@ -114,7 +114,10 @@
                         <!-- Education items generated here -->
                     </div>
 
-                    <button class="btn btn-primary btn-block" style="margin-top: 2.5rem;" onclick="saveProfile()">Save Smart Profile</button>
+                    <div style="display: flex; gap: 1rem; margin-top: 2.5rem;">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="clearForm()">Clear Form</button>
+                        <button class="btn btn-primary" style="flex: 2;" onclick="saveProfile()">Save Smart Profile</button>
+                    </div>
                 </div>
             </div>
 
@@ -269,6 +272,19 @@
         function removeRow(rowId) {
             const el = document.getElementById(rowId);
             if (el) el.remove();
+            updatePreview();
+        }
+
+        function clearForm() {
+            document.getElementById('raw-resume-text').value = '';
+            document.getElementById('candidate-bio').value = '';
+            document.getElementById('candidate-skills').value = '';
+            document.getElementById('experience-rows-container').innerHTML = '';
+            document.getElementById('education-rows-container').innerHTML = '';
+            
+            addExperienceRow();
+            addEducationRow();
+            
             updatePreview();
         }
 
