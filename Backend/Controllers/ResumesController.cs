@@ -132,18 +132,79 @@ namespace AITalentHub.Controllers
             if (lines.Length > 1) summary += " - " + lines[1];
             if (summary.Length > 150) summary = summary.Substring(0, 147) + "...";
 
+            var experiences = new List<object>();
+            var educations = new List<object>();
+            string currentSection = "";
+
+            foreach (var line in lines)
+            {
+                var trimmed = line.Trim();
+                if (trimmed.StartsWith("Experience", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentSection = "Experience";
+                    continue;
+                }
+                else if (trimmed.StartsWith("Education", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentSection = "Education";
+                    continue;
+                }
+
+                if (currentSection == "Experience" && trimmed.StartsWith("-"))
+                {
+                    var text = trimmed.Substring(1).Trim();
+                    var parts = text.Split(new[] { " at ", ":" }, StringSplitOptions.None);
+                    if (parts.Length >= 2)
+                    {
+                        experiences.Add(new { title = parts[0].Trim(), company = parts[1].Trim(), years = "Recent" });
+                    }
+                    else
+                    {
+                        experiences.Add(new { title = text, company = "Unknown", years = "Recent" });
+                    }
+                }
+                else if (currentSection == "Education" && trimmed.Length > 5)
+                {
+                    var parts = trimmed.Split(new[] { " from " }, StringSplitOptions.None);
+                    if (parts.Length >= 2)
+                    {
+                        educations.Add(new { degree = parts[0].Trim(), school = parts[1].Trim(), year = "Unknown" });
+                    }
+                    else
+                    {
+                        educations.Add(new { degree = trimmed, school = "Unknown", year = "Unknown" });
+                    }
+                }
+            }
+
             // Update candidate profile with these parsed values automatically!
             var userId = GetCurrentUserId();
             var profile = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
             if (profile != null)
             {
-                profile.Skills = string.Join(";", (profile.Skills.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                var currentSkills = profile.Skills ?? string.Empty;
+                profile.Skills = string.Join(";", (currentSkills.Split(';', StringSplitOptions.RemoveEmptyEntries)
                                                          .Union(extractedSkills))
                                                          .Distinct());
                 if (string.IsNullOrWhiteSpace(profile.Bio) || profile.Bio == "Hello! I am a new candidate.")
                 {
                     profile.Bio = $"Experienced professional. Parsed Summary: {summary}";
                 }
+
+                if (experiences.Count > 0)
+                {
+                    var currentExp = JsonSerializer.Deserialize<List<object>>(profile.ExperienceJson ?? "[]") ?? new List<object>();
+                    currentExp.AddRange(experiences);
+                    profile.ExperienceJson = JsonSerializer.Serialize(currentExp);
+                }
+
+                if (educations.Count > 0)
+                {
+                    var currentEdu = JsonSerializer.Deserialize<List<object>>(profile.EducationJson ?? "[]") ?? new List<object>();
+                    currentEdu.AddRange(educations);
+                    profile.EducationJson = JsonSerializer.Serialize(currentEdu);
+                }
+
                 profile.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
