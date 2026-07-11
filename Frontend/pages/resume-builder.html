@@ -74,8 +74,18 @@
                 <!-- AI Parse Box -->
                 <div class="card" style="border-color: var(--secondary);">
                     <h3 class="card-title">🤖 AI Resume Parsing</h3>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-glass);">
+                        <label class="form-label" for="resume-file">Upload CV Document (PDF or TXT)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="file" id="resume-file" accept=".pdf,.txt" class="form-input" style="flex: 1; padding: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="parseResumeFile()" id="parse-file-btn">✨ Auto-fill from CV</button>
+                        </div>
+                        <div id="parse-file-msg" style="color: var(--success); font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
+                    </div>
+
                     <div class="form-group">
-                        <label class="form-label" for="raw-resume-text">Paste Raw Resume Text</label>
+                        <label class="form-label" for="raw-resume-text">Or Paste Raw Resume Text</label>
                         <textarea id="raw-resume-text" class="form-input" placeholder="Paste your raw resume, experience details, or Linkedin summary here. The AI will extract your skills and write a bio."></textarea>
                     </div>
                     <button class="btn btn-secondary btn-block" onclick="parseResumeText()" id="parse-btn">⚡ AI Parse & Extract Skills</button>
@@ -362,12 +372,58 @@
 
                 msg.textContent = data.message;
                 msg.style.display = 'block';
-                document.getElementById('raw-resume-text').value = '';
+                // Note: The user requested NOT to clear the text box when parsed
             } catch (err) {
                 alert(`Parsing failed: ${err.message}`);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "⚡ AI Parse & Extract Skills";
+            }
+        }
+
+        async function parseResumeFile() {
+            const fileInput = document.getElementById('resume-file');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const btn = document.getElementById('parse-file-btn');
+            const msg = document.getElementById('parse-file-msg');
+            btn.disabled = true;
+            btn.textContent = "✨ Reading Document...";
+            msg.style.display = 'none';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/resumes/parse-file`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(error || 'Failed to parse file');
+                }
+                
+                const data = await response.json();
+                
+                // Reload profile data because parsing updates the database automatically
+                await loadProfileData();
+
+                msg.textContent = data.message;
+                msg.style.display = 'block';
+                fileInput.value = ''; // clear file input
+            } catch (err) {
+                alert(`Parsing failed: ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "✨ Auto-fill from CV";
             }
         }
 
