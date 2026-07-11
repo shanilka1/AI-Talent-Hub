@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient();
 
 // Database setup (MySQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -61,6 +62,12 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.EnsureCreated();
+    
+    // Ensure RawResumeText exists (since we aren't using migrations)
+    try {
+        dbContext.Database.ExecuteSqlRaw("ALTER TABLE CandidateProfiles ADD COLUMN RawResumeText LONGTEXT;");
+    } catch { } // Ignore if column already exists
+
     AITalentHub.Data.DbInitializer.Seed(dbContext);
 }
 

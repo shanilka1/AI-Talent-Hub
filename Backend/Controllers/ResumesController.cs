@@ -4,11 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using AITalentHub.Data;
 using AITalentHub.Models;
 
@@ -20,10 +24,14 @@ namespace AITalentHub.Controllers
     public class ResumesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public ResumesController(AppDbContext context)
+        public ResumesController(AppDbContext context, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
         public class UpdateProfileDto
@@ -32,11 +40,26 @@ namespace AITalentHub.Controllers
             public string Skills { get; set; } = string.Empty;
             public string ExperienceJson { get; set; } = "[]";
             public string EducationJson { get; set; } = "[]";
+            public string? RawResumeText { get; set; }
         }
 
         public class ParseRequestDto
         {
             public string ResumeText { get; set; } = string.Empty;
+        }
+
+        public class GeminiParsedResume
+        {
+            [JsonPropertyName("name")]
+            public string Name { get; set; } = string.Empty;
+            [JsonPropertyName("bio")]
+            public string Bio { get; set; } = string.Empty;
+            [JsonPropertyName("skills")]
+            public List<string> Skills { get; set; } = new List<string>();
+            [JsonPropertyName("experience")]
+            public List<object> Experience { get; set; } = new List<object>();
+            [JsonPropertyName("education")]
+            public List<object> Education { get; set; } = new List<object>();
         }
 
         private int GetCurrentUserId()
@@ -73,6 +96,7 @@ namespace AITalentHub.Controllers
                 experience = JsonSerializer.Deserialize<object>(profile.ExperienceJson),
                 education = JsonSerializer.Deserialize<object>(profile.EducationJson),
                 resumePath = profile.ResumePath,
+                rawResumeText = profile.RawResumeText,
                 updatedAt = profile.UpdatedAt
             });
         }
@@ -92,6 +116,12 @@ namespace AITalentHub.Controllers
             profile.Skills = dto.Skills;
             profile.ExperienceJson = dto.ExperienceJson;
             profile.EducationJson = dto.EducationJson;
+            
+            if (!string.IsNullOrEmpty(dto.RawResumeText))
+            {
+                profile.RawResumeText = dto.RawResumeText;
+            }
+
             profile.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -106,116 +136,108 @@ namespace AITalentHub.Controllers
                 return BadRequest("Resume text content is empty.");
             }
 
-            // Simple parser: Scan for common skills and key info
-            var commonSkills = new List<string> {
-                "C#", ".NET", "ASP.NET Core", "React", "Angular", "Vue", "JavaScript", "TypeScript", 
-                "HTML", "CSS", "SQL", "Microsoft SQL Server", "SQLite", "Python", "Java", "C++", 
-                "Docker", "Kubernetes", "AWS", "Azure", "DevOps", "Git", "GitHub", "Bootstrap"
+            var apiKey = _configuration["Gemini:ApiKey"];
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                return StatusCode(500, "Gemini API Key is not configured.");
+            }
+
+            var prompt = @"You are an expert resume parser. Extract the following information and output EXACTLY in the JSON format below. Do not include markdown or backticks, just the JSON.
+{
+  ""name"": ""Full Name"",
+  ""bio"": ""A short 1-2 sentence professional summary."",
+  ""skills"": [""Skill1"", ""Skill2""],
+  ""experience"": [ { ""title"": ""Job Title"", ""company"": ""Company Name"", ""years"": ""e.g. 2020-2023"" } ],
+  ""education"": [ { ""degree"": ""Degree Name"", ""school"": ""University"", ""year"": ""e.g. 2019"" } ]
+}
+Resume Text:
+" + dto.ResumeText;
+
+            var requestBody = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[] { new { text = prompt } }
+                    }
+                }
             };
 
-            var extractedSkills = new List<string>();
-            foreach (var skill in commonSkills)
+            var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+            var httpClient = _httpClientFactory.CreateClient();
+            var response = await httpClient.PostAsync($"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={apiKey}", jsonContent);
+
+            if (!response.IsSuccessStatusCode)
             {
-                // Word boundary check or case-insensitive contains
-                if (dto.ResumeText.Contains(skill, StringComparison.OrdinalIgnoreCase))
-                {
-                    extractedSkills.Add(skill);
-                }
+                var error = await response.Content.ReadAsStringAsync();
+                return StatusCode(500, $"AI Parsing failed: {error}");
             }
 
-            // Clean it up: convert it to Semicolon delimited
-            var skillsString = string.Join(";", extractedSkills);
-
-            // Simple heuristic to extract a basic bio or summary from the first 200 chars
-            var lines = dto.ResumeText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            var summary = lines.Length > 0 ? lines[0] : "Parsed Resume Profile";
-            if (lines.Length > 1) summary += " - " + lines[1];
-            if (summary.Length > 150) summary = summary.Substring(0, 147) + "...";
-
-            var experiences = new List<object>();
-            var educations = new List<object>();
-            string currentSection = "";
-
-            foreach (var line in lines)
+            var responseString = await response.Content.ReadAsStringAsync();
+            try
             {
-                var trimmed = line.Trim();
-                if (trimmed.StartsWith("Experience", StringComparison.OrdinalIgnoreCase))
-                {
-                    currentSection = "Experience";
-                    continue;
-                }
-                else if (trimmed.StartsWith("Education", StringComparison.OrdinalIgnoreCase))
-                {
-                    currentSection = "Education";
-                    continue;
-                }
+                using var document = JsonDocument.Parse(responseString);
+                var root = document.RootElement;
+                var textResponse = root.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString() ?? "{}";
 
-                if (currentSection == "Experience" && trimmed.StartsWith("-"))
-                {
-                    var text = trimmed.Substring(1).Trim();
-                    var parts = text.Split(new[] { " at ", ":" }, StringSplitOptions.None);
-                    if (parts.Length >= 2)
-                    {
-                        experiences.Add(new { title = parts[0].Trim(), company = parts[1].Trim(), years = "Recent" });
-                    }
-                    else
-                    {
-                        experiences.Add(new { title = text, company = "Unknown", years = "Recent" });
-                    }
-                }
-                else if (currentSection == "Education" && trimmed.Length > 5)
-                {
-                    var parts = trimmed.Split(new[] { " from " }, StringSplitOptions.None);
-                    if (parts.Length >= 2)
-                    {
-                        educations.Add(new { degree = parts[0].Trim(), school = parts[1].Trim(), year = "Unknown" });
-                    }
-                    else
-                    {
-                        educations.Add(new { degree = trimmed, school = "Unknown", year = "Unknown" });
-                    }
-                }
-            }
+                // Clean up possible markdown code blocks
+                if (textResponse.StartsWith("```json")) textResponse = textResponse.Substring(7);
+                else if (textResponse.StartsWith("```")) textResponse = textResponse.Substring(3);
+                if (textResponse.EndsWith("```")) textResponse = textResponse.Substring(0, textResponse.Length - 3);
+                textResponse = textResponse.Trim();
 
-            // Update candidate profile with these parsed values automatically!
-            var userId = GetCurrentUserId();
-            var user = await _context.Users.FindAsync(userId);
-            var profile = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
-            
-            if (profile != null)
-            {
-                profile.Skills = string.Join(";", extractedSkills);
+                var parsed = JsonSerializer.Deserialize<GeminiParsedResume>(textResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                if (parsed == null) throw new Exception("Failed to deserialize JSON.");
+
+                // Update database
+                var userId = GetCurrentUserId();
+                var user = await _context.Users.FindAsync(userId);
+                var profile = await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
                 
-                if (lines.Length > 0 && lines[0].Split(' ').Length <= 4)
+                if (profile != null)
                 {
-                    if (user != null)
+                    if (!string.IsNullOrWhiteSpace(parsed.Name) && user != null)
                     {
-                        user.FullName = lines[0].Trim();
+                        user.FullName = parsed.Name;
                     }
+
+                    if (parsed.Skills != null && parsed.Skills.Count > 0)
+                    {
+                        profile.Skills = string.Join(";", parsed.Skills);
+                    }
+                    
+                    if (!string.IsNullOrWhiteSpace(parsed.Bio))
+                    {
+                        profile.Bio = parsed.Bio;
+                    }
+
+                    if (parsed.Experience != null)
+                    {
+                        profile.ExperienceJson = JsonSerializer.Serialize(parsed.Experience);
+                    }
+
+                    if (parsed.Education != null)
+                    {
+                        profile.EducationJson = JsonSerializer.Serialize(parsed.Education);
+                    }
+
+                    profile.RawResumeText = dto.ResumeText;
+                    profile.UpdatedAt = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
                 }
 
-                profile.Bio = $"Experienced professional. Parsed Summary: {summary}";
-
-                if (experiences.Count > 0)
+                return Ok(new
                 {
-                    profile.ExperienceJson = JsonSerializer.Serialize(experiences);
-                }
-
-                if (educations.Count > 0)
-                {
-                    profile.EducationJson = JsonSerializer.Serialize(educations);
-                }
-
-                profile.UpdatedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
+                    message = "Resume successfully parsed via AI.",
+                    extractedSkills = parsed.Skills,
+                    summary = parsed.Bio
+                });
             }
-
-            return Ok(new
+            catch (Exception ex)
             {
-                extractedSkills = extractedSkills,
-                summary = summary,
-                message = "Resume successfully parsed and skills updated in your profile."
-            });
+                return StatusCode(500, $"Error processing AI response: {ex.Message}");
+            }
         }
 
         [HttpPost("upload")]

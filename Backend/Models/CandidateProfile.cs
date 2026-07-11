@@ -22,6 +22,8 @@ namespace AITalentHub.Models
         
         public string ResumePath { get; set; } = string.Empty;
         
+        public string? RawResumeText { get; set; } // Holds the raw unparsed text
+        
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -186,6 +186,7 @@
 
                 document.getElementById('candidate-bio').value = profile.bio || '';
                 document.getElementById('candidate-skills').value = profile.skills || '';
+                document.getElementById('raw-resume-text').value = profile.rawResumeText || '';
 
                 // Load experience
                 const expContainer = document.getElementById('experience-rows-container');
@@ -276,7 +277,7 @@
         }
 
         function clearForm() {
-            document.getElementById('raw-resume-text').value = '';
+            // document.getElementById('raw-resume-text').value = '';
             document.getElementById('candidate-bio').value = '';
             document.getElementById('candidate-skills').value = '';
             document.getElementById('experience-rows-container').innerHTML = '';
@@ -407,6 +408,7 @@
         async function saveProfile() {
             const bio = document.getElementById('candidate-bio').value;
             const skills = document.getElementById('candidate-skills').value;
+            const rawResumeText = document.getElementById('raw-resume-text').value;
             const experience = getExperienceData();
             const education = getEducationData();
 
@@ -414,6 +416,7 @@
                 await jobsService.updateMyProfile({
                     bio,
                     skills,
+                    rawResumeText,
                     experienceJson: JSON.stringify(experience),
                     educationJson: JSON.stringify(education)
                 });
