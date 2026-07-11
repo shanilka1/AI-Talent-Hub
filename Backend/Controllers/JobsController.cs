@@ -101,6 +101,18 @@ namespace AITalentHub.Controllers
             var jobs = await _context.JobPosts
                                     .Where(j => j.RecruiterProfileId == recruiter.Id)
                                     .OrderByDescending(j => j.CreatedAt)
+                                    .Select(j => new
+                                    {
+                                        j.Id,
+                                        j.Title,
+                                        j.Description,
+                                        j.Requirements,
+                                        j.Location,
+                                        j.JobType,
+                                        j.SalaryRange,
+                                        j.CreatedAt,
+                                        ApplicantCount = _context.Applications.Count(a => a.JobPostId == j.Id)
+                                    })
                                     .ToListAsync();
 
             return Ok(jobs);

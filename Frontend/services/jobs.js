@@ -5,7 +5,7 @@ const jobsService = {
         if (search) queryParams.append('search', search);
         if (location) queryParams.append('location', location);
         if (jobType) queryParams.append('jobType', jobType);
-        
+
         const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
         return await api.get(`/jobs${queryString}`);
     },
