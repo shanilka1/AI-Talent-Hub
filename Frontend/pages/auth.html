@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Login & Register</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .auth-container {
+            max-width: 480px;
+            margin: 3rem auto;
+        }
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .auth-tab.active {
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--primary);
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+        .error-message {
+            color: var(--accent);
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="card auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+                <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</div>
+            </div>
+
+            <div id="error-box" class="error-message"></div>
+
+            <!-- Login Form -->
+            <form id="form-login" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Email Address</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="name@domain.com" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label class="form-label" for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Log In</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label" for="register-name">Full Name</label>
+                    <input type="text" id="register-name" class="form-input" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="register-email">Email Address</label>
+                    <input type="email" id="register-email" class="form-input" placeholder="name@domain.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="register-password">Password</label>
+                    <input type="password" id="register-password" class="form-input" placeholder="Min. 6 characters" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="register-role">Account Type</label>
+                    <select id="register-role" class="form-input" onchange="toggleCompanyField()" required>
+                        <option value="Candidate" selected>Job Seeker (Candidate)</option>
+                        <option value="Recruiter">Recruiter (Employer)</option>
+                        <option value="HiringManager">Hiring Manager</option>
+                        <option value="Admin">Administrator</option>
+                    </select>
+                </div>
+
+                <!-- Recruiter-specific Field -->
+                <div class="form-group" id="recruiter-field" style="display: none;">
+                    <label class="form-label" for="register-company">Company Name</label>
+                    <input type="text" id="register-company" class="form-input" placeholder="Acme Corporation">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 2rem;">Create Account</button>
+            </form>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        // Check if already authenticated and redirect
+        if (authService.isAuthenticated()) {
+            redirectUser();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if (role) {
+                const roleSelect = document.getElementById('register-role');
+                if (roleSelect) {
+                    roleSelect.value = role;
+                    toggleCompanyField();
+                }
+            }
+        });
+
+        function switchTab(type) {
+            document.getElementById('error-box').style.display = 'none';
+            if (type === 'login') {
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
+                document.getElementById('form-login').classList.add('active');
+                document.getElementById('form-register').classList.remove('active');
+            } else {
+                document.getElementById('tab-login').classList.remove('active');
+                document.getElementById('tab-register').classList.add('active');
+                document.getElementById('form-login').classList.remove('active');
+                document.getElementById('form-register').classList.add('active');
+            }
+        }
+
+        function toggleCompanyField() {
+            const role = document.getElementById('register-role').value;
+            const companyField = document.getElementById('recruiter-field');
+            if (role === 'Recruiter') {
+                companyField.style.display = 'block';
+                document.getElementById('register-company').required = true;
+            } else {
+                companyField.style.display = 'none';
+                document.getElementById('register-company').required = false;
+            }
+        }
+
+        function showError(msg) {
+            const errorBox = document.getElementById('error-box');
+            errorBox.textContent = msg;
+            errorBox.style.display = 'block';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            document.getElementById('error-box').style.display = 'none';
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                await authService.login(email, password);
+                redirectUser();
+            } catch (error) {
+                showError(error.message || 'Login failed. Please check your credentials.');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            document.getElementById('error-box').style.display = 'none';
+
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+            const company = document.getElementById('register-company').value;
+
+            try {
+                await authService.register(email, password, name, role, company);
+                redirectUser();
+            } catch (error) {
+                showError(error.message || 'Registration failed. Please try again.');
+            }
+        }
+
+        function redirectUser() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+                return;
+            }
+
+            const user = authService.getCurrentUser();
+            if (user) {
+                if (user.role === 'Candidate') {
+                    window.location.href = '/pages/candidate-dashboard.html';
+                } else if (user.role === 'Recruiter') {
+                    window.location.href = '/pages/recruiter-dashboard.html';
+                } else if (user.role === 'HiringManager') {
+                    window.location.href = '/pages/hiring-manager-dashboard.html';
+                } else if (user.role === 'Admin') {
+                    window.location.href = '/pages/admin-dashboard.html';
+                } else {
+                    window.location.href = '/index.html';
+                }
+            } else {
+                window.location.href = '/index.html';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -125,7 +125,7 @@ AI-Talent-Hub/
 Clone Repository
 
 ```
-git clone https://github.com/USERNAME/ai-talent-hub.git
+git clone https://github.com/KawyaDissanayaka/ai-talent-hub-system.git
 ```
 
 Open Project

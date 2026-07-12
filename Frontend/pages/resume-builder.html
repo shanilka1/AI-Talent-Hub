@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Onboarding & CV Builder</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .onboarding-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 1024px) {
+            .onboarding-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .config-bar {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .config-input {
+            flex: 1;
+            max-width: 350px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-glass);
+            border-radius: 4px;
+            color: #fff;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+        /* Style for live visualizer sections */
+        .cv-section {
+            margin-bottom: 1.25rem;
+        }
+        .cv-section h4 {
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+        }
+        .cv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <h1>AI Onboarding Assistant</h1>
+        <p class="subtitle">Complete your profile conversationally with our AI recruiter to automatically generate your CV, scores, and job matches.</p>
+
+        <!-- Gemini API Key configuration bar -->
+        <div class="config-bar">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔑</span>
+                <div>
+                    <h5 style="margin: 0; font-size: 0.9rem;">Gemini API Integration</h5>
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--text-secondary);">Enter a key to use real Gemini AI, or leave empty for our smart local NLP fallback.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; width: 100%; max-width: 450px; justify-content: flex-end;">
+                <input type="password" id="gemini-key" class="config-input" placeholder="Enter Gemini API Key...">
+                <button class="btn btn-primary" onclick="saveApiKey()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Apply Key</button>
+            </div>
+        </div>
+
+        <div class="onboarding-layout">
+            <!-- Left Side: Chatbot Panel -->
+            <div class="chat-container">
+                <div class="chat-messages" id="chat-box">
+                    <!-- Dynamic Messages -->
+                    <div class="message message-incoming">
+                        Hi! I am your AI Recruiter. I will help you set up your profile and automatically generate a professional CV. Let's start with your contact details. What is your Full Name, Email, and Phone number?
+                    </div>
+                </div>
+                <div id="typing-loader" class="typing-indicator" style="display: none; margin: 0.75rem 1.5rem;">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-message-input" class="chat-input" placeholder="Type your response here..." onkeydown="handleInputKeydown(event)">
+                    <button class="btn btn-primary" onclick="sendMessage()" id="send-msg-btn">Send ⚡</button>
+                </div>
+            </div>
+
+            <!-- Right Side: Live CV visualizer sheet -->
+            <div class="cv-visualizer">
+                <div class="cv-tabs">
+                    <button class="cv-tab active" id="tab-1" onclick="switchTemplate(1)">Classic Theme</button>
+                    <button class="cv-tab" id="tab-2" onclick="switchTemplate(2)">Modern Accent</button>
+                    <button class="cv-tab" id="tab-3" onclick="switchTemplate(3)">Minimalist</button>
+                    <button class="btn btn-secondary" onclick="window.print()" style="margin-left: auto; padding: 0.4rem 1rem; border-radius: 0; border: none; font-size: 0.8rem;">Print/PDF 📥</button>
+                </div>
+                <div class="cv-page-scroller cv-theme-classic" id="cv-sheet">
+                    <!-- Standard CV structure -->
+                    <div id="cv-header-block" class="cv-section" style="text-align: center;">
+                        <h2 id="cv-name" style="margin-bottom: 0.25rem;">Kawya Dissanayaka</h2>
+                        <p id="cv-contact" style="font-size: 0.9rem; color: #475569;">candidate@example.com &bull; +94 77 123 4567 &bull; Colombo, Sri Lanka</p>
+                        <p id="cv-links" style="font-size: 0.85rem; color: #4f46e5; margin-top: 0.25rem; font-weight: 500;">
+                            <span id="cv-linkedin">LinkedIn: linkedin.com/in/id</span> &bull; 
+                            <span id="cv-github">GitHub: github.com/id</span>
+                        </p>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Career Objective</h3>
+                        <p id="cv-objective" class="preview-text">Passionate software developer seeking to leverage engineering experience to build scalable applications.</p>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Technical Skills</h3>
+                        <div class="tag-container" id="cv-skills" style="margin-top: 0.5rem;">
+                            <!-- Skill Tags -->
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Work Experience</h3>
+                        <div id="cv-experience">
+                            <!-- Work Experience list -->
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Education</h3>
+                        <div id="cv-education">
+                            <!-- Education list -->
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Projects</h3>
+                        <div id="cv-projects">
+                            <!-- Projects list -->
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>Certifications</h3>
+                        <div id="cv-certifications">
+                            <!-- Certifications list -->
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <div class="cv-grid">
+                            <div>
+                                <h3>Languages</h3>
+                                <p id="cv-languages">English, Sinhala</p>
+                            </div>
+                            <div>
+                                <h3>Achievements</h3>
+                                <p id="cv-achievements">Awarded Hackathon Winner 2024</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cv-section">
+                        <h3>References</h3>
+                        <div id="cv-references">
+                            <!-- References -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion Modal -->
+        <div id="success-modal" class="modal" style="display: none;">
+            <div class="modal-content" style="text-align: center;">
+                <h2 style="font-size: 2rem; color: var(--success); margin-bottom: 1rem;">🎉 Onboarding Completed!</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+                    The AI has generated your ATS-friendly CV and fully analyzed your qualifications. 
+                    We have matched you with suitable vacancies, applied, and scheduled interviews automatically!
+                </p>
+                <div id="auto-match-alert" style="margin-bottom: 2rem; text-align: left; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.3); padding: 1rem; border-radius: 6px;">
+                    <!-- Auto match notification summary -->
+                </div>
+                <a href="/pages/candidate-dashboard.html" class="btn btn-primary btn-block">Go to Dashboard</a>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/jobs.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        let currentTemplateId = 1;
+
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/pages/auth.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) {
+                document.getElementById('gemini-key').value = savedKey;
+                jobsService.configureGeminiApiKey(savedKey).catch(console.error);
+            }
+            loadProfileVisualizer();
+        });
+
+        async function saveApiKey() {
+            const key = document.getElementById('gemini-key').value.trim();
+            try {
+                if (key) {
+                    await jobsService.configureGeminiApiKey(key);
+                    localStorage.setItem('gemini_api_key', key);
+                    alert("Gemini API Key saved for this session!");
+                } else {
+                    localStorage.removeItem('gemini_api_key');
+                    alert("Gemini key removed. Fallback system will be used.");
+                }
+            } catch (err) {
+                alert("Failed to apply API key.");
+            }
+        }
+
+        async function loadProfileVisualizer() {
+            try {
+                const profile = await jobsService.getMyProfile();
+                
+                // Initialize template preference
+                currentTemplateId = profile.cvTemplateId || 1;
+                switchTemplate(currentTemplateId);
+
+                // Update visualizer values
+                updateLiveVisualizer(profile);
+
+                // If onboarding completed, adjust chat box
+                if (profile.onboardingStateJson) {
+                    let state = {};
+                    try {
+                        state = JSON.parse(profile.onboardingStateJson);
+                    } catch (e) {}
+
+                    if (state.isComplete) {
+                        const chatBox = document.getElementById('chat-box');
+                        chatBox.innerHTML = `
+                            <div class="message message-incoming">
+                                Hello! Your AI Onboarding is already complete. You can preview your ATS CV on the right. 
+                                If you want to refine or rebuild your resume fields, just type a message below and we will update your profile!
+                            </div>
+                        `;
+                    } else if (state.currentStep > 0) {
+                        // Resumed state: retrieve latest conversation state
+                        // For ease of chat flow, let AI re-prompt on next message or display standard greet
+                        const chatBox = document.getElementById('chat-box');
+                        chatBox.innerHTML = `
+                            <div class="message message-incoming">
+                                Welcome back! Let's resume your AI Onboarding. Type anything below to continue where we left off.
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load visualizer profile", err);
+            }
+        }
+
+        function handleInputKeydown(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-message-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Render message outgoing
+            const chatBox = document.getElementById('chat-box');
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'message message-outgoing';
+            userMsgDiv.textContent = message;
+            chatBox.appendChild(userMsgDiv);
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Show typing indicator
+            const loader = document.getElementById('typing-loader');
+            loader.style.display = 'flex';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await jobsService.submitOnboardingChat(message);
+                
+                // Hide loader
+                loader.style.display = 'none';
+
+                // Display incoming message
+                const aiMsgDiv = document.createElement('div');
+                aiMsgDiv.className = 'message message-incoming';
+                aiMsgDiv.textContent = response.nextPrompt;
+                chatBox.appendChild(aiMsgDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Dynamically update Live CV preview
+                if (response.extractedDetails) {
+                    updateLiveVisualizer(response.extractedDetails);
+                }
+
+                // If finished, pop completion modal with details
+                if (response.isComplete) {
+                    const modal = document.getElementById('success-modal');
+                    const alertDiv = document.getElementById('auto-match-alert');
+                    
+                    if (response.autoAppliedJobs && response.autoAppliedJobs.length > 0) {
+                        const jobsHtml = response.autoAppliedJobs.map(job => `
+                            <div style="margin-bottom: 0.75rem; border-left: 2px solid var(--success); padding-left: 0.5rem;">
+                                <strong>${job.title}</strong> at ${job.companyName}<br>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary);">
+                                    🎯 Match Compatibility: ${job.score}% | 📅 Interview: ${new Date(job.interviewTime).toLocaleString()}
+                                </span>
+                            </div>
+                        `).join('');
+                        alertDiv.innerHTML = `
+                            <h5 style="margin-top: 0; color: var(--success); margin-bottom: 0.5rem;">🤖 Auto-Applied and Scheduled Interviews:</h5>
+                            ${jobsHtml}
+                        `;
+                    } else {
+                        alertDiv.innerHTML = `
+                            <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                                Your scores are recorded. No immediate matches found above 85% score, but your CV is visible to recruiters!
+                            </p>
+                        `;
+                    }
+
+                    modal.style.display = 'flex';
+                }
+            } catch (err) {
+                loader.style.display = 'none';
+                const errDiv = document.createElement('div');
+                errDiv.className = 'message message-incoming';
+                errDiv.style.color = 'var(--accent)';
+                errDiv.textContent = `Error calling AI: ${err.message}`;
+                chatBox.appendChild(errDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        function updateLiveVisualizer(data) {
+            // Check if lists are JSON strings vs arrays
+            let experience = data.experience || [];
+            let education = data.education || [];
+            let certifications = data.certifications || [];
+            let projects = data.projects || [];
+            let achievements = data.achievements || [];
+            let references = data.references || [];
+
+            if (typeof experience === 'string') { try { experience = JSON.parse(experience); } catch(e) {} }
+            if (typeof education === 'string') { try { education = JSON.parse(education); } catch(e) {} }
+            if (typeof certifications === 'string') { try { certifications = JSON.parse(certifications); } catch(e) {} }
+            if (typeof projects === 'string') { try { projects = JSON.parse(projects); } catch(e) {} }
+            if (typeof achievements === 'string') { try { achievements = JSON.parse(achievements); } catch(e) {} }
+            if (typeof references === 'string') { try { references = JSON.parse(references); } catch(e) {} }
+
+            // Name & Header details
+            document.getElementById('cv-name').textContent = data.fullName || 'Kawya Dissanayaka';
+            const mail = data.email || 'candidate@example.com';
+            const ph = data.phone ? ` &bull; ${data.phone}` : '';
+            const addr = data.address ? ` &bull; ${data.address}` : '';
+            document.getElementById('cv-contact').innerHTML = `${mail}${ph}${addr}`;
+
+            // Social links
+            const li = data.linkedInUrl ? `LinkedIn: <a href="${data.linkedInUrl}" target="_blank">${data.linkedInUrl}</a>` : '';
+            const gh = data.gitHubUrl ? `GitHub: <a href="${data.gitHubUrl}" target="_blank">${data.gitHubUrl}</a>` : '';
+            const linkDivider = (li && gh) ? ' &bull; ' : '';
+            document.getElementById('cv-links').innerHTML = `${li}${linkDivider}${gh}`;
+            document.getElementById('cv-links').style.display = (li || gh) ? 'block' : 'none';
+
+            // Objective
+            document.getElementById('cv-objective').textContent = data.careerObjective || data.bio || 'No objective set.';
+
+            // Skills
+            const skillsDiv = document.getElementById('cv-skills');
+            skillsDiv.innerHTML = '';
+            const skillsStr = data.skills || '';
+            if (skillsStr.trim()) {
+                skillsStr.split(';').forEach(s => {
+                    if (s.trim()) {
+                        const tag = document.createElement('span');
+                        tag.className = 'tag';
+                        tag.style.background = '#e0e7ff';
+                        tag.style.color = '#3730a3';
+                        tag.style.borderColor = '#c7d2fe';
+                        tag.textContent = s.trim();
+                        skillsDiv.appendChild(tag);
+                    }
+                });
+            } else {
+                skillsDiv.innerHTML = '<span style="color: #94a3b8; font-size: 0.85rem;">None entered yet.</span>';
+            }
+
+            // Experience
+            const expDiv = document.getElementById('cv-experience');
+            if (Array.isArray(experience) && experience.length > 0) {
+                expDiv.innerHTML = experience.map(item => `
+                    <div style="margin-bottom: 0.75rem;">
+                        <h5 style="margin: 0; color: #1e1b4b;">${item.title || 'Job Title'}</h5>
+                        <p style="margin: 0; font-size: 0.8rem; color: #4f46e5; font-weight: 500;">${item.company || 'Company'} &bull; ${item.years || 'Date'}</p>
+                    </div>
+                `).join('');
+            } else {
+                expDiv.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">No experience added.</p>';
+            }
+
+            // Education
+            const eduDiv = document.getElementById('cv-education');
+            if (Array.isArray(education) && education.length > 0) {
+                eduDiv.innerHTML = education.map(item => `
+                    <div style="margin-bottom: 0.75rem;">
+                        <h5 style="margin: 0; color: #1e1b4b;">${item.degree || 'Degree/Certificate'}</h5>
+                        <p style="margin: 0; font-size: 0.8rem; color: #4f46e5; font-weight: 500;">${item.school || 'School/University'} &bull; ${item.year || 'Graduation Year'}</p>
+                    </div>
+                `).join('');
+            } else {
+                eduDiv.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">No education added.</p>';
+            }
+
+            // Projects
+            const projDiv = document.getElementById('cv-projects');
+            if (Array.isArray(projects) && projects.length > 0) {
+                projDiv.innerHTML = projects.map(item => `
+                    <div style="margin-bottom: 0.75rem;">
+                        <h5 style="margin: 0; color: #1e1b4b;">${item.name || 'Project Name'}</h5>
+                        <p style="margin: 0.1rem 0; font-size: 0.85rem; color: #475569;">${item.description || 'Description'}</p>
+                        <p style="margin: 0; font-size: 0.75rem; color: #6366f1; font-weight: 600;">Technologies: ${item.technologies || 'None listed'}</p>
+                    </div>
+                `).join('');
+            } else {
+                projDiv.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">No projects added.</p>';
+            }
+
+            // Certifications
+            const certsDiv = document.getElementById('cv-certifications');
+            if (Array.isArray(certifications) && certifications.length > 0) {
+                certsDiv.innerHTML = certifications.map(item => `
+                    <div style="margin-bottom: 0.5rem; font-size: 0.85rem;">
+                        <strong>${item.name || 'Certificate'}</strong> &mdash; ${item.issuer || 'Issuer'} (${item.year || 'Year'})
+                    </div>
+                `).join('');
+            } else {
+                certsDiv.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">No certifications added.</p>';
+            }
+
+            // Languages
+            const langStr = Array.isArray(data.languages) ? data.languages.join('; ') : (data.languages || '');
+            document.getElementById('cv-languages').textContent = langStr.replace(/;/g, ', ') || 'English';
+
+            // Achievements
+            if (Array.isArray(achievements) && achievements.length > 0) {
+                document.getElementById('cv-achievements').textContent = achievements.join(', ');
+            } else {
+                document.getElementById('cv-achievements').textContent = 'None entered.';
+            }
+
+            // References
+            const refDiv = document.getElementById('cv-references');
+            if (Array.isArray(references) && references.length > 0) {
+                refDiv.innerHTML = references.map(item => `
+                    <div style="margin-bottom: 0.5rem; font-size: 0.85rem;">
+                        <strong>${item.name || 'Reference Name'}</strong> &bull; ${item.designation || 'Position'} &bull; ${item.contact || 'Contact details'}
+                    </div>
+                `).join('');
+            } else {
+                refDiv.innerHTML = '<p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">References available upon request.</p>';
+            }
+        }
+
+        async function switchTemplate(templateId) {
+            currentTemplateId = templateId;
+            const sheet = document.getElementById('cv-sheet');
+            sheet.className = "cv-page-scroller"; // Reset
+            
+            // Remove active classes
+            document.querySelectorAll('.cv-tab').forEach(t => t.classList.remove('active'));
+
+            if (templateId === 1) {
+                sheet.classList.add('cv-theme-classic');
+                document.getElementById('tab-1').classList.add('active');
+            } else if (templateId === 2) {
+                sheet.classList.add('cv-theme-modern');
+                document.getElementById('tab-2').classList.add('active');
+            } else if (templateId === 3) {
+                sheet.classList.add('cv-theme-minimalist');
+                document.getElementById('tab-3').classList.add('active');
+            }
+
+            try {
+                await jobsService.updateCvTemplateSelection(templateId);
+            } catch (e) {
+                console.error("Failed to save template selection to backend", e);
+            }
+        }
+    </script>
+</body>
+</html>
