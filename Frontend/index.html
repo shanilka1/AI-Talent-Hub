@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Home</title>
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <section class="hero">
+            <h1>Connecting Talent with Opportunities<br>Through Artificial Intelligence</h1>
+            <p>Build an AI-powered resume, receive smart job recommendations matched specifically to your skills, and track your applications in real-time.</p>
+            <div style="display: flex; justify-content: center; gap: 1rem;">
+                <a href="/pages/job-search.html" class="btn btn-primary">Browse Jobs</a>
+                <a href="/pages/auth.html" class="btn btn-secondary">Create Account</a>
+            </div>
+        </section>
+
+        <section class="grid-2" style="margin-bottom: 4rem;">
+            <div class="card">
+                <h3 class="card-title">👨‍🎓 For Candidates</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+                    Take your career to the next level with our intelligent resume parser. Paste your details to extract skills automatically, build a matching profile, and see visual compatibility scores for every job listing.
+                </p>
+                <a href="#" onclick="handleBuildResume(event)" class="btn btn-primary btn-block">Build Smart Resume</a>
+            </div>
+            
+            <div class="card">
+                <h3 class="card-title">🏢 For Recruiters</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6;">
+                    Find the perfect match instantly. Post job opportunities and see candidates automatically ranked by their compatibility score calculated by our AI engine. Schedule interviews and manage hiring pipelines easily.
+                </p>
+                <a href="#" onclick="handlePostJob(event)" class="btn btn-primary btn-block">Post a Job Posting</a>
+            </div>
+        </section>
+
+        <section class="card" style="text-align: center; background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 100%);">
+            <h2 style="margin-bottom: 1rem;">How the AI Matching Engine Works</h2>
+            <p style="color: var(--text-secondary); max-width: 800px; margin: 0 auto 2rem; line-height: 1.6;">
+                Our platform analyzes key terms in your resume, bio, work history, and education, comparing them directly against recruiter job requirements. It evaluates candidate fit instantly to deliver a compatibility score and matching details.
+            </p>
+            <div class="grid-3" style="text-align: left; margin-top: 1.5rem;">
+                <div style="padding: 1rem; border-left: 2px solid var(--primary);">
+                    <h4>1. Skill Extraction</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        The system scans resume submissions to parse skills and profile keywords.
+                    </p>
+                </div>
+                <div style="padding: 1rem; border-left: 2px solid var(--secondary);">
+                    <h4>2. Profile Comparison</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Algorithms evaluate the overlap of profile keywords against job prerequisites.
+                    </p>
+                </div>
+                <div style="padding: 1rem; border-left: 2px solid var(--accent);">
+                    <h4>3. Ranked Compatibility</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Results display a compatibility score (0-100%) and details explaining the fit.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        function handleBuildResume(e) {
+            e.preventDefault();
+            if (authService.isAuthenticated()) {
+                const user = authService.getCurrentUser();
+                if (user && user.role !== 'Candidate') {
+                    alert(`You are logged in as ${user.role}. Please log out and sign in as a Candidate to build a resume.`);
+                } else {
+                    window.location.href = '/pages/resume-builder.html';
+                }
+            } else {
+                window.location.href = '/pages/auth.html?role=Candidate&redirect=/pages/resume-builder.html';
+            }
+        }
+
+        function handlePostJob(e) {
+            e.preventDefault();
+            if (authService.isAuthenticated()) {
+                const user = authService.getCurrentUser();
+                if (user && (user.role !== 'Recruiter' && user.role !== 'HiringManager' && user.role !== 'Admin')) {
+                    alert(`You are logged in as ${user.role}. Please log out and sign in as a Recruiter to post jobs.`);
+                } else {
+                    window.location.href = '/pages/post-job.html';
+                }
+            } else {
+                window.location.href = '/pages/auth.html?role=Recruiter&redirect=/pages/post-job.html';
+            }
+        }
+    </script>
+</body>
+</html>
