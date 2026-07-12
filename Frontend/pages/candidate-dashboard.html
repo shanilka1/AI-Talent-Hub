@@ -193,6 +193,10 @@
             const container = document.getElementById('interviews-list');
             try {
                 const interviews = await jobsService.getMyInterviews();
+                window.interviewReminders = interviews.reduce((acc, interview) => {
+                    acc[interview.id] = interview;
+                    return acc;
+                }, {});
                 if (interviews.length === 0) {
                     container.innerHTML = `<p style="color: var(--text-muted);">No upcoming interviews scheduled.</p>`;
                     return;
@@ -208,6 +212,7 @@
                             <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">📅 ${date}</p>
                             <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">📍 Location/Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--primary); text-decoration: none;">${i.locationOrLink}</a></p>
                             ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">Note: ${i.notes}</p>` : ''}
+                            <button class="btn btn-secondary" onclick="downloadInterviewReminder(${i.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; margin-bottom: 0.75rem;">🗓 Add reminder</button>
                             ${ratingStars ? `<p style="font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text-secondary);">Rating: <span style="font-weight: bold; color: var(--secondary);">${ratingStars}</span></p>` : ''}
                             ${i.feedback ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(16, 185, 129, 0.05); padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2);">Feedback: ${i.feedback}</p>` : ''}
                         </div>
@@ -216,6 +221,57 @@
             } catch (err) {
                 container.innerHTML = `<p style="color: var(--accent);">Failed to load interviews.</p>`;
             }
+        }
+
+        function downloadInterviewReminder(interviewId) {
+            const interview = window.interviewReminders?.[interviewId];
+            if (!interview) {
+                alert('Unable to create calendar reminder at this time. Please reload and try again.');
+                return;
+            }
+            const ics = buildInterviewIcs(interview);
+            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `interview-reminder-${interviewId}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function buildInterviewIcs(interview) {
+            const start = new Date(interview.scheduledTime);
+            const end = new Date(start.getTime() + 60 * 60000);
+            const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const summary = `Interview: ${interview.jobTitle} with ${interview.companyName || 'AI Talent Hub'}`;
+            const description = `Interview for ${interview.jobTitle}\\nCompany: ${interview.companyName || 'N/A'}\\nLocation/Link: ${interview.locationOrLink || 'TBA'}\\nNotes: ${interview.notes || 'None'}`;
+            const location = interview.locationOrLink || 'TBA';
+
+            return [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//AI Talent Hub//EN',
+                'BEGIN:VEVENT',
+                `UID:${Date.now()}-${interview.id}@ai-talent-hub`,
+                `DTSTAMP:${formatDate(new Date())}`,
+                `DTSTART:${formatDate(start)}`,
+                `DTEND:${formatDate(end)}`,
+                `SUMMARY:${escapeIcsText(summary)}`,
+                `DESCRIPTION:${escapeIcsText(description)}`,
+                `LOCATION:${escapeIcsText(location)}`,
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+        }
+
+        function escapeIcsText(text) {
+            return String(text || '')
+                .replace(/\\/g, '\\\\')
+                .replace(/\n/g, '\\n')
+                .replace(/,/g, '\\,')
+                .replace(/;/g, '\\;');
         }
 
         function showExplanation(job) {
