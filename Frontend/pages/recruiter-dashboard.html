@@ -455,24 +455,6 @@
             }
         }
 
-        // function downloadInterviewReminder(interviewId) {
-        //     const interview = window.interviewReminders?.[interviewId];
-        //     if (!interview) {
-        //         alert('Unable to create calendar reminder at this time. Please reload and try again.');
-        //         return;
-        //     }
-        //     const ics = buildInterviewIcs(interview);
-        //     const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-        //     const url = URL.createObjectURL(blob);
-        //     const link = document.createElement('a');
-        //     link.href = url;
-        //     link.download = `interview-reminder-${interviewId}.ics`;
-        //     document.body.appendChild(link);
-        //     link.click();
-        //     document.body.removeChild(link);
-        //     URL.revokeObjectURL(url);
-        // }
-
         async function addInterviewReminder(interviewId) {
             const interview = window.interviewReminders?.[interviewId];
             if (!interview) {
@@ -488,39 +470,6 @@
                 alert('Something went wrong adding the reminder. Please try again.');
             }
         }
-
-        // function buildInterviewIcs(interview) {
-        //     const start = new Date(interview.scheduledTime);
-        //     const end = new Date(start.getTime() + 60 * 60000);
-        //     const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-        //     const summary = `Interview: ${interview.jobTitle} with ${interview.candidateName || 'Candidate'}`;
-        //     const description = `Interview for ${interview.jobTitle}\\nCandidate: ${interview.candidateName || 'Unknown'}\\nLocation/Link: ${interview.locationOrLink || 'TBA'}\\nNotes: ${interview.notes || 'None'}`;
-        //     const location = interview.locationOrLink || 'TBA';
-
-        //     return [
-        //         'BEGIN:VCALENDAR',
-        //         'VERSION:2.0',
-        //         'PRODID:-//AI Talent Hub//EN',
-        //         'BEGIN:VEVENT',
-        //         `UID:${Date.now()}-${interview.id}@ai-talent-hub`,
-        //         `DTSTAMP:${formatDate(new Date())}`,
-        //         `DTSTART:${formatDate(start)}`,
-        //         `DTEND:${formatDate(end)}`,
-        //         `SUMMARY:${escapeIcsText(summary)}`,
-        //         `DESCRIPTION:${escapeIcsText(description)}`,
-        //         `LOCATION:${escapeIcsText(location)}`,
-        //         'END:VEVENT',
-        //         'END:VCALENDAR'
-        //     ].join('\r\n');
-        // }
-
-        // function escapeIcsText(text) {
-        //     return String(text || '')
-        //         .replace(/\\/g, '\\\\')
-        //         .replace(/\n/g, '\\n')
-        //         .replace(/,/g, '\\,')
-        //         .replace(/;/g, '\\;');
-        // }
 
         function openInterviewModal(appId, candidateName) {
             document.getElementById('modal-app-id').value = appId;
