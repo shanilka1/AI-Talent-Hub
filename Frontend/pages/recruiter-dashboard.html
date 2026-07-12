@@ -242,6 +242,7 @@
                                     <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem; color: var(--primary);">${job.title}</h4>
                                     <p style="font-size: 0.85rem; color: var(--text-secondary);">${job.location} &bull; ${job.jobType}</p>
                                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">Posted on: ${date}</p>
+                                    <p style="font-size: 0.85rem; color: var(--primary); margin-top: 0.25rem;">👥 ${job.applicantCount || 0} Applicant${job.applicantCount === 1 ? '' : 's'}</p>
                                 </div>
                                 <button class="btn btn-secondary" onclick="deleteJobPosting(event, ${job.id})" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(244, 63, 94, 0.1); color: #fb7185; border-color: rgba(244, 63, 94, 0.2);">Delete</button>
                             </div>
