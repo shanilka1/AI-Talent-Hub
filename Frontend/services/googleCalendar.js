@@ -29,7 +29,6 @@ function getGoogleAccessToken() {
     });
 }
 
-
 async function createGoogleCalendarEvent(interview, accessToken, personLabel) {
     const start = new Date(interview.scheduledTime);
     const end = new Date(start.getTime() + 60 * 60000);
@@ -60,6 +59,5 @@ async function createGoogleCalendarEvent(interview, accessToken, personLabel) {
         throw new Error("Failed to create calendar event");
     }
 }
-
 
 initGoogleAuth();
