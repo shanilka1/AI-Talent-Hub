@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,13 +13,16 @@
             align-items: center;
             margin-bottom: 2rem;
         }
+
         .job-item {
             cursor: pointer;
             transition: var(--transition);
         }
+
         .job-item:hover {
             border-color: var(--primary);
         }
+
         .applicant-row {
             display: flex;
             justify-content: space-between;
@@ -29,6 +33,7 @@
             border-radius: var(--radius-sm);
             margin-bottom: 0.75rem;
         }
+
         .candidate-detail-box {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-glass);
@@ -40,6 +45,7 @@
         }
     </style>
 </head>
+
 <body>
     <header></header>
 
@@ -47,7 +53,8 @@
         <div class="dashboard-header">
             <div>
                 <h1 id="welcome-title">Recruiter Dashboard</h1>
-                <p class="subtitle" id="company-subtitle" style="margin-bottom: 0;">Manage job postings and screen matched candidates.</p>
+                <p class="subtitle" id="company-subtitle" style="margin-bottom: 0;">Manage job postings and screen
+                    matched candidates.</p>
             </div>
             <div>
                 <a href="/pages/post-job.html" class="btn btn-primary">Create Job Posting</a>
@@ -64,7 +71,8 @@
 
                 <div id="applicants-section" style="margin-top: 3rem; display: none;">
                     <h3 style="margin-bottom: 0.5rem;" id="applicants-title">Applicants</h3>
-                    <p class="subtitle" style="font-size: 0.9rem;" id="applicants-subtitle">Select a job post to view and rank candidates.</p>
+                    <p class="subtitle" style="font-size: 0.9rem;" id="applicants-subtitle">Select a job post to view
+                        and rank candidates.</p>
                     <div id="applicants-list">
                         <!-- Filled dynamically -->
                     </div>
@@ -81,14 +89,18 @@
         </div>
 
         <!-- Schedule Interview Modal -->
-        <div id="interview-modal" class="modal" style="display: none; align-items: flex-start; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; overflow-y: auto; padding: 2rem 1rem;">
-            <div class="modal-content" style="max-width: 520px; width: 100%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 2rem; position: relative; margin: 0 auto;">
-                <button class="close-modal" onclick="closeModal()" style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+        <div id="interview-modal" class="modal"
+            style="display: none; align-items: flex-start; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; overflow-y: auto; padding: 2rem 1rem;">
+            <div class="modal-content"
+                style="max-width: 520px; width: 100%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 2rem; position: relative; margin: 0 auto;">
+                <button class="close-modal" onclick="closeModal()"
+                    style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 <h3 style="margin-bottom: 0.5rem; color: var(--primary);">📅 Schedule Interview</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;" id="interview-modal-subtitle">Set a date and meeting details for this candidate.</p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;"
+                    id="interview-modal-subtitle">Set a date and meeting details for this candidate.</p>
                 <form id="form-interview" onsubmit="handleScheduleInterview(event)">
                     <input type="hidden" id="modal-app-id">
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="interview-time">Date & Time</label>
                         <input type="datetime-local" id="interview-time" class="form-input" required>
@@ -96,27 +108,33 @@
 
                     <div class="form-group">
                         <label class="form-label" for="interview-link">Location / Meeting Link</label>
-                        <input type="text" id="interview-link" class="form-input" placeholder="e.g. https://meet.google.com/xxx or Room 201" required>
+                        <input type="text" id="interview-link" class="form-input"
+                            placeholder="e.g. https://meet.google.com/xxx or Room 201" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="interview-notes">Notes for Candidate (optional)</label>
-                        <textarea id="interview-notes" class="form-input" rows="3" placeholder="Topics to cover, dress code, documents to bring..."></textarea>
+                        <textarea id="interview-notes" class="form-input" rows="3"
+                            placeholder="Topics to cover, dress code, documents to bring..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block" id="schedule-btn" style="margin-top: 1.5rem;">✅ Confirm Interview</button>
+                    <button type="submit" class="btn btn-primary btn-block" id="schedule-btn"
+                        style="margin-top: 1.5rem;">✅ Confirm Interview</button>
                 </form>
             </div>
         </div>
 
         <!-- Interview Feedback Modal -->
-        <div id="feedback-modal" class="modal" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000;">
-            <div class="modal-content" style="max-width: 500px; width: 90%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 2rem; position: relative; margin: auto;">
-                <button type="button" class="close-modal" onclick="closeFeedbackModal()" style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+        <div id="feedback-modal" class="modal"
+            style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000;">
+            <div class="modal-content"
+                style="max-width: 500px; width: 90%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 2rem; position: relative; margin: auto;">
+                <button type="button" class="close-modal" onclick="closeFeedbackModal()"
+                    style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 <h3 style="margin-bottom: 1.5rem;" id="feedback-modal-title">Interview Feedback & Scoring</h3>
                 <form id="form-feedback" onsubmit="handleFeedbackSubmit(event)">
                     <input type="hidden" id="feedback-interview-id">
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="feedback-score">Candidate Score / Rating (1-5 Stars)</label>
                         <select id="feedback-score" class="form-input" required>
@@ -131,10 +149,12 @@
 
                     <div class="form-group" style="margin-top: 1rem;">
                         <label class="form-label" for="feedback-text">Feedback Notes</label>
-                        <textarea id="feedback-text" class="form-input" rows="4" placeholder="Strengths, weaknesses, alignment, overall assessment..." required></textarea>
+                        <textarea id="feedback-text" class="form-input" rows="4"
+                            placeholder="Strengths, weaknesses, alignment, overall assessment..." required></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Save Feedback & Score</button>
+                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Save Feedback &
+                        Score</button>
                 </form>
             </div>
         </div>
@@ -142,6 +162,8 @@
 
     <footer></footer>
 
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="../services/googleCalendar.js"></script>
     <script src="/services/api.js"></script>
     <script src="/services/auth.js"></script>
     <script src="/services/jobs.js"></script>
@@ -236,7 +258,7 @@
 
         async function selectJob(jobId, jobTitle) {
             selectedJobId = jobId;
-            
+
             // Highlight selected job card
             document.querySelectorAll('.job-item').forEach(card => card.style.borderColor = 'var(--border-glass)');
             const selectedCard = document.getElementById(`job-card-${jobId}`);
@@ -250,7 +272,7 @@
         async function loadApplicants(jobId) {
             const container = document.getElementById('applicants-list');
             container.innerHTML = '<p style="color: var(--text-muted);">Loading applicants...</p>';
-            
+
             try {
                 const applicants = await jobsService.getJobApplicants(jobId);
                 if (applicants.length === 0) {
@@ -350,7 +372,7 @@
             let list = [];
             try {
                 list = typeof jsonVal === 'string' ? JSON.parse(jsonVal) : jsonVal;
-            } catch (e) {}
+            } catch (e) { }
 
             if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
             return list.map(item => `
@@ -365,7 +387,7 @@
             let list = [];
             try {
                 list = typeof jsonVal === 'string' ? JSON.parse(jsonVal) : jsonVal;
-            } catch (e) {}
+            } catch (e) { }
 
             if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
             return list.map(item => `
@@ -417,7 +439,7 @@
                             <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">📅 ${date}</p>
                             <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">📍 Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--secondary); text-decoration: none;">${i.locationOrLink}</a></p>
                             ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">Notes: ${i.notes}</p>` : ''}
-                            <button class="btn btn-secondary" onclick="downloadInterviewReminder(${i.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; margin-bottom: 0.75rem;">🗓 Add reminder</button>
+                            <button class="btn btn-secondary" onclick="addInterviewReminder(${i.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; margin-bottom: 0.75rem;">🗓 Add reminder</button>
                             
                             <!-- Feedback & Scoring Section -->
                             <div style="margin-top: 1rem; border-top: 1px solid var(--border-glass); padding-top: 0.75rem;">
@@ -433,56 +455,72 @@
             }
         }
 
-        function downloadInterviewReminder(interviewId) {
+        // function downloadInterviewReminder(interviewId) {
+        //     const interview = window.interviewReminders?.[interviewId];
+        //     if (!interview) {
+        //         alert('Unable to create calendar reminder at this time. Please reload and try again.');
+        //         return;
+        //     }
+        //     const ics = buildInterviewIcs(interview);
+        //     const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+        //     const url = URL.createObjectURL(blob);
+        //     const link = document.createElement('a');
+        //     link.href = url;
+        //     link.download = `interview-reminder-${interviewId}.ics`;
+        //     document.body.appendChild(link);
+        //     link.click();
+        //     document.body.removeChild(link);
+        //     URL.revokeObjectURL(url);
+        // }
+
+        async function addInterviewReminder(interviewId) {
             const interview = window.interviewReminders?.[interviewId];
             if (!interview) {
                 alert('Unable to create calendar reminder at this time. Please reload and try again.');
                 return;
             }
-            const ics = buildInterviewIcs(interview);
-            const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `interview-reminder-${interviewId}.ics`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            try {
+                const accessToken = await getGoogleAccessToken();
+                await createGoogleCalendarEvent(interview, accessToken, interview.companyName || 'Candidate');
+                alert(' Added to your Google Calendar!');
+            } catch (err) {
+                console.error(err);
+                alert('Something went wrong adding the reminder. Please try again.');
+            }
         }
 
-        function buildInterviewIcs(interview) {
-            const start = new Date(interview.scheduledTime);
-            const end = new Date(start.getTime() + 60 * 60000);
-            const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-            const summary = `Interview: ${interview.jobTitle} with ${interview.candidateName || 'Candidate'}`;
-            const description = `Interview for ${interview.jobTitle}\\nCandidate: ${interview.candidateName || 'Unknown'}\\nLocation/Link: ${interview.locationOrLink || 'TBA'}\\nNotes: ${interview.notes || 'None'}`;
-            const location = interview.locationOrLink || 'TBA';
+        // function buildInterviewIcs(interview) {
+        //     const start = new Date(interview.scheduledTime);
+        //     const end = new Date(start.getTime() + 60 * 60000);
+        //     const formatDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        //     const summary = `Interview: ${interview.jobTitle} with ${interview.candidateName || 'Candidate'}`;
+        //     const description = `Interview for ${interview.jobTitle}\\nCandidate: ${interview.candidateName || 'Unknown'}\\nLocation/Link: ${interview.locationOrLink || 'TBA'}\\nNotes: ${interview.notes || 'None'}`;
+        //     const location = interview.locationOrLink || 'TBA';
 
-            return [
-                'BEGIN:VCALENDAR',
-                'VERSION:2.0',
-                'PRODID:-//AI Talent Hub//EN',
-                'BEGIN:VEVENT',
-                `UID:${Date.now()}-${interview.id}@ai-talent-hub`,
-                `DTSTAMP:${formatDate(new Date())}`,
-                `DTSTART:${formatDate(start)}`,
-                `DTEND:${formatDate(end)}`,
-                `SUMMARY:${escapeIcsText(summary)}`,
-                `DESCRIPTION:${escapeIcsText(description)}`,
-                `LOCATION:${escapeIcsText(location)}`,
-                'END:VEVENT',
-                'END:VCALENDAR'
-            ].join('\r\n');
-        }
+        //     return [
+        //         'BEGIN:VCALENDAR',
+        //         'VERSION:2.0',
+        //         'PRODID:-//AI Talent Hub//EN',
+        //         'BEGIN:VEVENT',
+        //         `UID:${Date.now()}-${interview.id}@ai-talent-hub`,
+        //         `DTSTAMP:${formatDate(new Date())}`,
+        //         `DTSTART:${formatDate(start)}`,
+        //         `DTEND:${formatDate(end)}`,
+        //         `SUMMARY:${escapeIcsText(summary)}`,
+        //         `DESCRIPTION:${escapeIcsText(description)}`,
+        //         `LOCATION:${escapeIcsText(location)}`,
+        //         'END:VEVENT',
+        //         'END:VCALENDAR'
+        //     ].join('\r\n');
+        // }
 
-        function escapeIcsText(text) {
-            return String(text || '')
-                .replace(/\\/g, '\\\\')
-                .replace(/\n/g, '\\n')
-                .replace(/,/g, '\\,')
-                .replace(/;/g, '\\;');
-        }
+        // function escapeIcsText(text) {
+        //     return String(text || '')
+        //         .replace(/\\/g, '\\\\')
+        //         .replace(/\n/g, '\\n')
+        //         .replace(/,/g, '\\,')
+        //         .replace(/;/g, '\\;');
+        // }
 
         function openInterviewModal(appId, candidateName) {
             document.getElementById('modal-app-id').value = appId;
@@ -558,7 +596,7 @@
             }
         }
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('interview-modal');
             const feedbackModal = document.getElementById('feedback-modal');
             if (event.target === modal) {
@@ -569,4 +607,5 @@
         }
     </script>
 </body>
+
 </html>
