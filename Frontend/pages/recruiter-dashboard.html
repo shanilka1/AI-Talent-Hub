@@ -23,29 +23,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.25rem;
+            padding: 1rem;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-sm);
             margin-bottom: 0.75rem;
-            transition: var(--transition);
         }
-        .applicant-row:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: var(--primary);
-        }
-        .rank-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-            color: #fff;
-            margin-right: 0.5rem;
-            text-transform: uppercase;
-        }
-        .gold-badge {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        .candidate-detail-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
         }
     </style>
 </head>
@@ -74,19 +65,6 @@
                 <div id="applicants-section" style="margin-top: 3rem; display: none;">
                     <h3 style="margin-bottom: 0.5rem;" id="applicants-title">Applicants</h3>
                     <p class="subtitle" style="font-size: 0.9rem;" id="applicants-subtitle">Select a job post to view and rank candidates.</p>
-                    
-                    <!-- Premium Filter Bar -->
-                    <div class="card" style="padding: 1rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-                        <span style="font-size: 0.9rem; font-weight: 600;">🔍 Filter Applicants:</span>
-                        <input type="text" id="filter-skills" class="form-input" style="flex: 1; min-width: 150px; margin-bottom: 0; padding: 0.4rem 0.8rem;" placeholder="Search skills (e.g. C#;React)..." oninput="applyApplicantFilters()">
-                        <select id="filter-min-score" class="form-input" style="width: 150px; margin-bottom: 0; padding: 0.4rem 0.8rem;" onchange="applyApplicantFilters()">
-                            <option value="0">Min Match Score</option>
-                            <option value="50">50% +</option>
-                            <option value="70">70% +</option>
-                            <option value="85">85% +</option>
-                        </select>
-                    </div>
-
                     <div id="applicants-list">
                         <!-- Filled dynamically -->
                     </div>
@@ -103,9 +81,9 @@
         </div>
 
         <!-- Schedule Interview Modal -->
-        <div id="interview-modal" class="modal" style="display: none;">
-            <div class="modal-content" style="max-width: 520px;">
-                <button class="close-modal" onclick="closeModal('interview-modal')">&times;</button>
+        <div id="interview-modal" class="modal" style="display: none; align-items: flex-start; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; overflow-y: auto; padding: 2rem 1rem;">
+            <div class="modal-content" style="max-width: 520px; width: 100%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 2rem; position: relative; margin: 0 auto;">
+                <button class="close-modal" onclick="closeModal()" style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 <h3 style="margin-bottom: 0.5rem; color: var(--primary);">📅 Schedule Interview</h3>
                 <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem;" id="interview-modal-subtitle">Set a date and meeting details for this candidate.</p>
                 <form id="form-interview" onsubmit="handleScheduleInterview(event)">
@@ -132,9 +110,9 @@
         </div>
 
         <!-- Interview Feedback Modal -->
-        <div id="feedback-modal" class="modal" style="display: none;">
-            <div class="modal-content" style="max-width: 500px;">
-                <button type="button" class="close-modal" onclick="closeModal('feedback-modal')">&times;</button>
+        <div id="feedback-modal" class="modal" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000;">
+            <div class="modal-content" style="max-width: 500px; width: 90%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 2rem; position: relative; margin: auto;">
+                <button type="button" class="close-modal" onclick="closeFeedbackModal()" style="position: absolute; right: 1rem; top: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
                 <h3 style="margin-bottom: 1.5rem;" id="feedback-modal-title">Interview Feedback & Scoring</h3>
                 <form id="form-feedback" onsubmit="handleFeedbackSubmit(event)">
                     <input type="hidden" id="feedback-interview-id">
@@ -160,22 +138,6 @@
                 </form>
             </div>
         </div>
-
-        <!-- CV Preview Modal -->
-        <div id="cv-preview-modal" class="modal" style="display: none;">
-            <div class="modal-content" style="max-width: 800px; width: 90%;">
-                <button class="close-modal" onclick="closeModal('cv-preview-modal')">&times;</button>
-                <h3 style="margin-bottom: 1rem; color: var(--primary);">Candidate CV Sheet</h3>
-                <div class="cv-tabs" style="margin-bottom: 1rem;">
-                    <button class="cv-tab active" id="modal-tab-1" onclick="switchPreviewTemplate(1)">Classic</button>
-                    <button class="cv-tab" id="modal-tab-2" onclick="switchPreviewTemplate(2)">Modern</button>
-                    <button class="cv-tab" id="modal-tab-3" onclick="switchPreviewTemplate(3)">Minimalist</button>
-                </div>
-                <div class="cv-page-scroller cv-theme-classic" id="modal-cv-sheet" style="max-height: 500px; border: 1px solid var(--border-glass); border-radius: 4px; padding: 2rem;">
-                    <!-- Dynamically populated candidate CV -->
-                </div>
-            </div>
-        </div>
     </main>
 
     <footer></footer>
@@ -188,8 +150,6 @@
 
     <script>
         let selectedJobId = null;
-        let loadedApplicants = [];
-        let activePreviewCandidateData = null;
 
         // Secure access
         if (!authService.isAuthenticated()) {
@@ -198,6 +158,8 @@
             const user = authService.getCurrentUser();
             if (user && user.role !== 'Recruiter') {
                 if (user.role === 'Candidate') window.location.href = '/pages/candidate-dashboard.html';
+                else if (user.role === 'HiringManager') window.location.href = '/pages/hiring-manager-dashboard.html';
+                else if (user.role === 'Admin') window.location.href = '/pages/admin-dashboard.html';
                 else window.location.href = '/index.html';
             } else {
                 document.getElementById('welcome-title').textContent = `${user.fullName} (${user.role})`;
@@ -255,12 +217,13 @@
         }
 
         async function deleteJobPosting(event, jobId) {
-            event.stopPropagation();
+            event.stopPropagation(); // prevent selectJob triggering
             if (confirm("Are you sure you want to delete this job posting? This will also delete all associated applications and interviews.")) {
                 try {
                     await jobsService.deleteJob(jobId);
                     alert("Job posting deleted successfully.");
                     loadJobs();
+                    // Clear applicants section if selected
                     if (selectedJobId === jobId) {
                         document.getElementById('applicants-section').style.display = 'none';
                         selectedJobId = null;
@@ -273,17 +236,14 @@
 
         async function selectJob(jobId, jobTitle) {
             selectedJobId = jobId;
+            
+            // Highlight selected job card
             document.querySelectorAll('.job-item').forEach(card => card.style.borderColor = 'var(--border-glass)');
             const selectedCard = document.getElementById(`job-card-${jobId}`);
             if (selectedCard) selectedCard.style.borderColor = 'var(--primary)';
 
             document.getElementById('applicants-section').style.display = 'block';
             document.getElementById('applicants-title').textContent = `Applicants for: ${jobTitle}`;
-            
-            // Clear filter inputs
-            document.getElementById('filter-skills').value = '';
-            document.getElementById('filter-min-score').value = '0';
-
             loadApplicants(jobId);
         }
 
@@ -292,186 +252,143 @@
             container.innerHTML = '<p style="color: var(--text-muted);">Loading applicants...</p>';
             
             try {
-                loadedApplicants = await jobsService.getJobApplicants(jobId);
-                renderApplicantList(loadedApplicants);
-            } catch (err) {
-                container.innerHTML = `<p style="color: var(--accent);">Failed to load applicants: ${err.message}</p>`;
-            }
-        }
-
-        function renderApplicantList(applicants) {
-            const container = document.getElementById('applicants-list');
-            if (applicants.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-secondary);">No applicants found matching this criteria.</p>`;
-                return;
-            }
-
-            container.innerHTML = applicants.map((app, index) => {
-                const snap = app.resumeSnapshot || {};
-                const statusColor = { Applied: '#60a5fa', Reviewing: '#f59e0b', Shortlisted: '#a78bfa', Interviewing: '#34d399', Offered: '#10b981', Rejected: '#fb7185' }[app.status] || 'var(--text-muted)';
-                const isTopThree = index < 3;
-                const rankText = isTopThree ? `<span class="rank-badge ${index === 0 ? 'gold-badge' : ''}">#${index + 1} Fit</span>` : '';
-                return `
-                    <div class="applicant-row">
-                        <div style="flex: 1; padding-right: 1rem;">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                                ${rankText}
-                                <h4 style="margin: 0; color: var(--text-primary); font-size: 1.05rem;">${app.candidateName || 'Candidate'}</h4>
-                            </div>
-                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">${app.candidateEmail || ''} ${snap.phone ? '&bull; ' + snap.phone : ''}</p>
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <span style="font-size: 0.75rem; font-weight: 600; color: ${statusColor}; background: ${statusColor}22; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid ${statusColor}44;">${app.status}</span>
-                                <button class="btn btn-secondary" onclick="openCvModal(${JSON.stringify(app).replace(/"/g, '&quot;')})" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">📄 View CV Sheet</button>
-                                <button class="btn btn-primary" onclick="openInterviewModal(${app.id}, '${(app.candidateName || '').replace(/'/g, "\\'")}')" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">📅 Interview</button>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1.5rem; flex-shrink: 0;">
-                            <div>
-                                <div class="score-gauge" style="--percent: ${app.matchScore}; width: 52px; height: 52px;">
-                                    <span class="score-value" style="font-size: 0.8rem;">${Math.round(app.matchScore)}%</span>
-                                </div>
-                                <p style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-top: 0.2rem; font-weight: bold;">Match Fit</p>
-                            </div>
-                            <div>
-                                <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Status</label>
-                                <select class="form-input" style="font-size: 0.8rem; padding: 0.3rem 0.5rem; width: 130px; margin-bottom: 0;" onchange="updateStatus(${app.id}, this.value)">
-                                    <option value="Applied" ${app.status === 'Applied' ? 'selected' : ''}>Applied</option>
-                                    <option value="Reviewing" ${app.status === 'Reviewing' ? 'selected' : ''}>Reviewing</option>
-                                    <option value="Shortlisted" ${app.status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
-                                    <option value="Interviewing" ${app.status === 'Interviewing' ? 'selected' : ''}>Interviewing</option>
-                                    <option value="Offered" ${app.status === 'Offered' ? 'selected' : ''}>Offered ✅</option>
-                                    <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected ❌</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function applyApplicantFilters() {
-            const skillQuery = document.getElementById('filter-skills').value.toLowerCase().trim();
-            const minScore = parseInt(document.getElementById('filter-min-score').value) || 0;
-
-            const filtered = loadedApplicants.filter(app => {
-                const snap = app.resumeSnapshot || {};
-                const skillsStr = (snap.skills || '').toLowerCase();
-                
-                // Skill check: if query has terms, check if skills string includes them
-                let matchSkills = true;
-                if (skillQuery) {
-                    const queryTerms = skillQuery.split(';').map(t => t.trim()).filter(Boolean);
-                    matchSkills = queryTerms.every(term => skillsStr.includes(term));
+                const applicants = await jobsService.getJobApplicants(jobId);
+                if (applicants.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-secondary);">No applications received for this job yet.</p>`;
+                    return;
                 }
 
-                // Score check
-                const matchScore = app.matchScore >= minScore;
+                container.innerHTML = applicants.map(app => {
+                    // Safely handle null resumeSnapshot
+                    const snap = app.resumeSnapshot || {};
+                    const statusColor = { Applied: '#60a5fa', Reviewing: '#f59e0b', Shortlisted: '#a78bfa', Interviewing: '#34d399', Offered: '#10b981', Rejected: '#fb7185' }[app.status] || 'var(--text-muted)';
+                    return `
+                        <div style="margin-bottom: 1rem;">
+                            <div class="applicant-row">
+                                <div style="flex: 1;">
+                                    <h4 style="margin-bottom: 0.15rem; color: var(--text-primary);">${app.candidateName || 'Unknown Candidate'}</h4>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">${app.candidateEmail || ''}</p>
+                                    <span style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: ${statusColor}; background: ${statusColor}22; padding: 0.15rem 0.5rem; border-radius: 999px; border: 1px solid ${statusColor}44; margin-bottom: 0.5rem;">${app.status}</span>
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button class="btn btn-secondary" onclick="toggleDetails(${app.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">👁 View Resume</button>
+                                        <button class="btn btn-primary" onclick="openInterviewModal(${app.id}, '${(app.candidateName || '').replace(/'/g, "\\'")}')"
+                                            style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">📅 Schedule Interview</button>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                    <div>
+                                        <div class="score-gauge" style="--percent: ${app.matchScore}; width: 52px; height: 52px;">
+                                            <span class="score-value" style="font-size: 0.8rem;">${Math.round(app.matchScore)}%</span>
+                                        </div>
+                                        <p style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-top: 0.2rem;">Match</p>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Status</label>
+                                        <select class="form-input" style="font-size: 0.8rem; padding: 0.3rem 0.5rem; width: 130px;" onchange="updateStatus(${app.id}, this.value)">
+                                            <option value="Applied" ${app.status === 'Applied' ? 'selected' : ''}>Applied</option>
+                                            <option value="Reviewing" ${app.status === 'Reviewing' ? 'selected' : ''}>Reviewing</option>
+                                            <option value="Shortlisted" ${app.status === 'Shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                                            <option value="Interviewing" ${app.status === 'Interviewing' ? 'selected' : ''}>Interviewing</option>
+                                            <option value="Offered" ${app.status === 'Offered' ? 'selected' : ''}>Offered ✅</option>
+                                            <option value="Rejected" ${app.status === 'Rejected' ? 'selected' : ''}>Rejected ❌</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Detailed Resume Box -->
+                            <div class="candidate-detail-box" id="detail-box-${app.id}">
+                                <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">📝 Professional Summary</h5>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.6;">${snap.bio || snap.fullName ? (snap.bio || 'No bio provided.') : 'No application details available.'}</p>
 
-                return matchSkills && matchScore;
-            });
+                                ${snap.fullName ? `<p style="font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Name:</strong> ${snap.fullName}</p>` : ''}
+                                ${snap.phone ? `<p style="font-size: 0.85rem; margin-bottom: 1rem;"><strong>Phone:</strong> ${snap.phone}</p>` : ''}
+                                
+                                <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">🛠 Skills</h5>
+                                <div class="tag-container" style="margin-bottom: 1.5rem;">
+                                    ${snap.skills ? snap.skills.split(';').filter(s => s.trim()).map(s => `<span class="tag">${s.trim()}</span>`).join('') : '<p style="font-size: 0.85rem; color: var(--text-muted);">No skills listed.</p>'}
+                                </div>
+ 
+                                <div class="grid-2" style="margin-bottom: 1rem;">
+                                    <div>
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">💼 Work Experience</h5>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                            ${renderListJson(snap.experience)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">🎓 Education</h5>
+                                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                            ${renderListJson(snap.education)}
+                                        </div>
+                                    </div>
+                                </div>
 
-            renderApplicantList(filtered);
-        }
+                                <div style="margin-bottom: 1rem;">
+                                    <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">🚀 Projects</h5>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                        ${renderProjectsListJson(snap.projects)}
+                                    </div>
+                                </div>
 
-        function openCvModal(appData) {
-            activePreviewCandidateData = appData.resumeSnapshot || {};
-            
-            // Populate Modal CV Page based on current template
-            switchPreviewTemplate(1);
-            document.getElementById('cv-preview-modal').style.display = 'flex';
-        }
-
-        function switchPreviewTemplate(templateId) {
-            const sheet = document.getElementById('modal-cv-sheet');
-            sheet.className = "cv-page-scroller"; // Reset
-            
-            // Reset tabs active class
-            document.querySelectorAll('#cv-preview-modal .cv-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(`modal-tab-${templateId}`).classList.add('active');
-
-            if (templateId === 1) {
-                sheet.classList.add('cv-theme-classic');
-            } else if (templateId === 2) {
-                sheet.classList.add('cv-theme-modern');
-            } else if (templateId === 3) {
-                sheet.classList.add('cv-theme-minimalist');
+                                ${snap.attachedResumeFilename ? `
+                                <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99,102,241,0.3); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.85rem; color: var(--text-primary);">📄 CV: <strong>${snap.attachedResumeFilename.substring(snap.attachedResumeFilename.indexOf('_') + 1)}</strong></span>
+                                    <a href="http://localhost:5260/uploads/${snap.attachedResumeFilename}" target="_blank" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; text-decoration: none;">⬇ Download</a>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<p style="color: var(--accent);">Failed to load applicants.</p>`;
             }
+        }
 
-            const data = activePreviewCandidateData || {};
+        function renderListJson(jsonVal) {
+            let list = [];
+            try {
+                list = typeof jsonVal === 'string' ? JSON.parse(jsonVal) : jsonVal;
+            } catch (e) {}
 
-            let experience = data.experience || [];
-            let education = data.education || [];
-            let certifications = data.certifications || [];
-            let projects = data.projects || [];
-            let achievements = data.achievements || [];
-            let references = data.references || [];
+            if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
+            return list.map(item => `
+                <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                    <p style="font-weight: 600; color: var(--text-primary);">${item.title || item.degree || 'Item'}</p>
+                    <p style="color: var(--text-muted); font-size: 0.8rem;">${item.company || item.school || ''} &bull; ${item.years || item.year || ''}</p>
+                </div>
+            `).join('');
+        }
 
-            if (typeof experience === 'string') { try { experience = JSON.parse(experience); } catch(e) {} }
-            if (typeof education === 'string') { try { education = JSON.parse(education); } catch(e) {} }
-            if (typeof certifications === 'string') { try { certifications = JSON.parse(certifications); } catch(e) {} }
-            if (typeof projects === 'string') { try { projects = JSON.parse(projects); } catch(e) {} }
-            if (typeof achievements === 'string') { try { achievements = JSON.parse(achievements); } catch(e) {} }
-            if (typeof references === 'string') { try { references = JSON.parse(references); } catch(e) {} }
+        function renderProjectsListJson(jsonVal) {
+            let list = [];
+            try {
+                list = typeof jsonVal === 'string' ? JSON.parse(jsonVal) : jsonVal;
+            } catch (e) {}
 
-            sheet.innerHTML = `
-                <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <h2>${data.fullName || 'Candidate Name'}</h2>
-                    <p style="color: #475569; font-size: 0.9rem;">${data.email || ''} ${data.phone ? '&bull; ' + data.phone : ''} ${data.address ? '&bull; ' + data.address : ''}</p>
+            if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
+            return list.map(item => `
+                <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                    <p style="font-weight: 600; color: var(--text-primary);">${item.title || 'Project'}</p>
+                    <p style="color: var(--text-muted); font-size: 0.8rem;">${item.description || ''}</p>
                 </div>
-                <div>
-                    <h3>Professional Objective</h3>
-                    <p style="font-size: 0.9rem; line-height: 1.5; color: #334155;">${data.careerObjective || data.bio || 'Not entered.'}</p>
-                </div>
-                <div style="margin-top: 1rem;">
-                    <h3>Skills</h3>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        ${(data.skills || '').split(';').filter(Boolean).map(s => `<span class="tag" style="background:#e0e7ff; color:#3730a3;">${s.trim()}</span>`).join('') || '<span style="color:#94a3b8;">None.</span>'}
-                    </div>
-                </div>
-                <div style="margin-top: 1rem;">
-                    <h3>Work Experience</h3>
-                    ${(experience.length > 0) ? experience.map(item => `
-                        <div style="margin-bottom: 0.5rem;">
-                            <strong>${item.title || 'Role'}</strong> at ${item.company || 'Company'} (${item.years || 'Date'})
-                        </div>
-                    `).join('') : '<p>None.</p>'}
-                </div>
-                <div style="margin-top: 1rem;">
-                    <h3>Education</h3>
-                    ${(education.length > 0) ? education.map(item => `
-                        <div style="margin-bottom: 0.5rem;">
-                            <strong>${item.degree || 'Degree'}</strong> &mdash; ${item.school || 'School'} (${item.year || ''})
-                        </div>
-                    `).join('') : '<p>None.</p>'}
-                </div>
-                <div style="margin-top: 1rem;">
-                    <h3>Projects</h3>
-                    ${(projects.length > 0) ? projects.map(item => `
-                        <div style="margin-bottom: 0.5rem; font-size: 0.9rem;">
-                            <strong>${item.name || 'Project'}</strong>: ${item.description || ''}<br>
-                            <span style="color:#6366f1; font-size:0.75rem;">Technologies: ${item.technologies || ''}</span>
-                        </div>
-                    `).join('') : '<p>None.</p>'}
-                </div>
-                <div style="margin-top: 1rem;">
-                    <h3>Certifications</h3>
-                    ${(certifications.length > 0) ? certifications.map(item => `
-                        <div style="font-size: 0.85rem;">
-                            <strong>${item.name || ''}</strong> &mdash; ${item.issuer || ''} (${item.year || ''})
-                        </div>
-                    `).join('') : '<p>None.</p>'}
-                </div>
-            `;
+            `).join('');
+        }
+
+        function toggleDetails(appId) {
+            const box = document.getElementById(`detail-box-${appId}`);
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+            }
         }
 
         async function updateStatus(appId, newStatus) {
             try {
                 await jobsService.updateApplicationStatus(appId, newStatus);
-                loadInterviews();
-                // Refresh list to show updated status colors
-                if (selectedJobId) {
-                    loadApplicants(selectedJobId);
-                }
+                loadInterviews(); // Refresh interviews in case status changed to/from interviewing
             } catch (err) {
                 alert(`Error updating status: ${err.message}`);
             }
@@ -494,9 +411,10 @@
                             <h4 style="color: var(--primary); margin-bottom: 0.25rem;">${i.candidateName}</h4>
                             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Role: ${i.jobTitle}</p>
                             <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">📅 ${date}</p>
-                            <p style="font-size: 0.9rem; margin-bottom: 0.5rem; word-break: break-all;">📍 Location/Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--secondary); text-decoration: none;">${i.locationOrLink}</a></p>
+                            <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">📍 Link: <a href="${i.locationOrLink.startsWith('http') ? i.locationOrLink : '#'}" target="_blank" style="color: var(--secondary); text-decoration: none;">${i.locationOrLink}</a></p>
                             ${i.notes ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem;">Notes: ${i.notes}</p>` : ''}
                             
+                            <!-- Feedback & Scoring Section -->
                             <div style="margin-top: 1rem; border-top: 1px solid var(--border-glass); padding-top: 0.75rem;">
                                 <p style="font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);"><strong>Interview Rating:</strong> <span style="color: var(--secondary); font-weight: bold;">${ratingStars}</span></p>
                                 ${i.feedback ? `<p style="font-size: 0.85rem; color: var(--text-muted); background: rgba(16, 185, 129, 0.05); padding: 0.5rem; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 0.5rem;"><strong>Feedback:</strong> ${i.feedback}</p>` : ''}
@@ -512,20 +430,17 @@
 
         function openInterviewModal(appId, candidateName) {
             document.getElementById('modal-app-id').value = appId;
-            document.getElementById('interview-modal-subtitle').textContent = `Scheduling interview for: ${candidateName}`;
+            const subtitle = document.getElementById('interview-modal-subtitle');
+            if (subtitle && candidateName) subtitle.textContent = `Scheduling interview for: ${candidateName}`;
             document.getElementById('interview-modal').style.display = 'flex';
+            document.getElementById('interview-time').value = '';
+            document.getElementById('interview-link').value = '';
+            document.getElementById('interview-notes').value = '';
         }
 
-        function openFeedbackModal(interviewId, candidateName, currentFeedback, currentRating) {
-            document.getElementById('feedback-interview-id').value = interviewId;
-            document.getElementById('feedback-modal-title').textContent = `Interview Feedback - ${candidateName}`;
-            document.getElementById('feedback-text').value = currentFeedback || '';
-            document.getElementById('feedback-score').value = currentRating > 0 ? currentRating.toString() : '';
-            document.getElementById('feedback-modal').style.display = 'flex';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+        function closeModal() {
+            document.getElementById('interview-modal').style.display = 'none';
+            document.getElementById('form-interview').reset();
         }
 
         async function handleScheduleInterview(e) {
@@ -541,16 +456,32 @@
 
             try {
                 await jobsService.scheduleInterview(appId, time, link, notes);
-                closeModal('interview-modal');
-                alert('✅ Interview scheduled successfully!');
+                closeModal();
+                alert('✅ Interview scheduled successfully! The candidate\'s status has been updated to Interviewing.');
                 loadInterviews();
-                if (selectedJobId) loadApplicants(selectedJobId);
+                if (selectedJobId) {
+                    loadApplicants(selectedJobId);
+                }
             } catch (err) {
                 alert(`Failed to schedule interview: ${err.message}`);
             } finally {
                 btn.disabled = false;
                 btn.textContent = '✅ Confirm Interview';
             }
+        }
+
+        // Feedback Modal functions
+        function openFeedbackModal(interviewId, candidateName, currentFeedback, currentRating) {
+            document.getElementById('feedback-interview-id').value = interviewId;
+            document.getElementById('feedback-modal-title').textContent = `Interview Feedback & Scoring - ${candidateName}`;
+            document.getElementById('feedback-text').value = currentFeedback || '';
+            document.getElementById('feedback-score').value = currentRating > 0 ? currentRating.toString() : '';
+            document.getElementById('feedback-modal').style.display = 'flex';
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedback-modal').style.display = 'none';
+            document.getElementById('form-feedback').reset();
         }
 
         async function handleFeedbackSubmit(e) {
@@ -561,9 +492,11 @@
 
             try {
                 await jobsService.updateInterviewFeedback(id, text, score);
-                closeModal('feedback-modal');
+                closeFeedbackModal();
                 loadInterviews();
-                if (selectedJobId) loadApplicants(selectedJobId);
+                if (selectedJobId) {
+                    loadApplicants(selectedJobId);
+                }
             } catch (err) {
                 alert("Failed to save feedback: " + err.message);
             }
@@ -572,10 +505,11 @@
         window.onclick = function(event) {
             const modal = document.getElementById('interview-modal');
             const feedbackModal = document.getElementById('feedback-modal');
-            const cvModal = document.getElementById('cv-preview-modal');
-            if (event.target === modal) closeModal('interview-modal');
-            if (event.target === feedbackModal) closeModal('feedback-modal');
-            if (event.target === cvModal) closeModal('cv-preview-modal');
+            if (event.target === modal) {
+                closeModal();
+            } else if (event.target === feedbackModal) {
+                closeFeedbackModal();
+            }
         }
     </script>
 </body>

@@ -143,26 +143,5 @@ const jobsService = {
 
     async adminDeleteJob(jobId) {
         return await api.delete(`/admin/jobs/${jobId}`);
-    },
-
-    // AI Onboarding & Recruitment API calls
-    async submitOnboardingChat(message) {
-        return await api.post('/airecruitment/chat', { message });
-    },
-
-    async triggerAiResumeAnalysis() {
-        return await api.post('/airecruitment/analyze');
-    },
-
-    async getInterviewPrep(jobId) {
-        return await api.get(`/airecruitment/interview-prep/${jobId}`);
-    },
-
-    async configureGeminiApiKey(apiKey) {
-        return await api.post('/airecruitment/setup-api-key', { apiKey });
-    },
-
-    async updateCvTemplateSelection(templateId) {
-        return await api.post('/airecruitment/update-template', { templateId });
     }
 };

@@ -1,11 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Theme
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-theme');
-    } else {
-        document.documentElement.classList.remove('light-theme');
-    }
     renderNavbar();
 });
 
@@ -66,14 +59,11 @@ function renderNavbar() {
             <a href="/index.html" class="logo">
                 ✨ AI Talent Hub
             </a>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <nav>
-                    <ul class="nav-links">
-                        ${navLinksHtml}
-                    </ul>
-                </nav>
-                <button id="theme-toggle-btn" class="theme-toggle" title="Toggle Light/Dark Mode">🌓</button>
-            </div>
+            <nav>
+                <ul class="nav-links">
+                    ${navLinksHtml}
+                </ul>
+            </nav>
         </div>
     `;
 
@@ -108,15 +98,6 @@ function renderNavbar() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/index.html';
-        });
-    }
-
-    // Setup theme toggle handler
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const isLight = document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
         });
     }
 }

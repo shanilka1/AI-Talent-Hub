@@ -64,24 +64,7 @@ namespace AITalentHub.Data
                 Bio = "Passionate full-stack developer with experience in C# programming, ASP.NET Core REST APIs, and React frontend dashboards.",
                 Skills = "C#;ASP.NET Core;React;JavaScript;SQL;Git",
                 ExperienceJson = JsonSerializer.Serialize(experience),
-                EducationJson = JsonSerializer.Serialize(education),
-                Phone = "+94 77 123 4567",
-                Address = "No. 45, Galle Road, Colombo 03",
-                DateOfBirth = "2000-05-15",
-                Languages = "English;Sinhala",
-                CareerObjective = "To secure a challenging position as a software engineer where I can utilize my development skills to build premium enterprise software.",
-                CertificationsJson = "[{\"name\":\"AWS Certified Cloud Practitioner\",\"issuer\":\"Amazon Web Services\",\"year\":\"2024\"}]",
-                ProjectsJson = "[{\"name\":\"E-Commerce Engine\",\"description\":\"High performance web store built with React and .NET Web APIs.\",\"technologies\":\"React;C#;.NET\"}]",
-                AchievementsJson = "[\"Winner of National Hackathon 2024\"]",
-                ReferencesJson = "[{\"name\":\"Dr. Asela Perera\",\"designation\":\"Senior Lecturer\",\"contact\":\"asela@uom.lk\"}]",
-                PreferredJobCategory = "Software Engineering",
-                PreferredSalary = "Rs. 200,000",
-                PreferredLocation = "Colombo / Remote",
-                LinkedInUrl = "https://linkedin.com/in/kawyadissanayaka",
-                GitHubUrl = "https://github.com/KawyaDissanayaka",
-                AiAnalysisReportJson = "{\"skillScore\":88,\"experienceScore\":75,\"educationScore\":90,\"atsCompatibility\":85,\"overallScore\":84,\"suggestions\":[\"Add more details about cloud platforms (AWS/Docker) in projects\",\"List additional certifications like Microsoft Certified Developer\"]}",
-                OnboardingStateJson = "{\"currentStep\":18,\"isComplete\":true}",
-                CvTemplateId = 1
+                EducationJson = JsonSerializer.Serialize(education)
             };
             context.CandidateProfiles.Add(candidateProfile);
 
