@@ -19,13 +19,18 @@ function renderNavbar() {
 
     let navLinksHtml = `
         <li><a href="/index.html" id="nav-home">Home</a></li>
-        <li><a href="/pages/job-search.html" id="nav-jobs">Find Jobs</a></li>
     `;
+
+    if (!token || !user || user.role === 'Candidate') {
+        navLinksHtml += `
+            <li><a href="/pages/job-search.html" id="nav-jobs">Find Jobs</a></li>
+        `;
+    }
 
     if (token && user) {
         if (user.role === 'Candidate') {
             navLinksHtml += `
-                <li><a href="/pages/candidate-dashboard.html" id="nav-dashboard">Dashboard</a></li>
+                <li><a href="/pages/candidate-dashboard.html" id="nav-dashboard">Candidate Dashboard</a></li>
                 <li><a href="/pages/resume-builder.html" id="nav-resume">AI Resume Builder</a></li>
             `;
         } else if (user.role === 'Recruiter') {
@@ -35,7 +40,7 @@ function renderNavbar() {
             `;
         } else if (user.role === 'HiringManager') {
             navLinksHtml += `
-                <li><a href="/pages/hiring-manager-dashboard.html" id="nav-dashboard">Dashboard</a></li>
+                <li><a href="/pages/hiring-manager-dashboard.html" id="nav-dashboard">Hiring Manager Dashboard</a></li>
             `;
         } else if (user.role === 'Admin') {
             navLinksHtml += `
