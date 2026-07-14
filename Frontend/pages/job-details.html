@@ -226,8 +226,8 @@
                 return;
             }
 
-            if (user.role === 'Recruiter') {
-                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">Recruiters cannot apply for jobs.</p>`;
+            if (user.role !== 'Candidate') {
+                container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">Only candidates can apply for jobs. Please sign in with a Candidate account to submit an application.</p>`;
                 return;
             }
 
