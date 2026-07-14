@@ -462,9 +462,7 @@
                 return;
             }
             try {
-                const accessToken = await getGoogleAccessToken();
-                await createGoogleCalendarEvent(interview, accessToken, interview.companyName || 'Candidate');
-                alert(' Added to your Google Calendar!');
+                addToGoogleCalendar(interview, interview.companyName || 'Candidate');
             } catch (err) {
                 console.error(err);
                 alert('Something went wrong adding the reminder. Please try again.');
