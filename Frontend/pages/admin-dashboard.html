@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Administrator Dashboard</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .stat-icon {
+            font-size: 1.8rem;
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            opacity: 0.8;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+        }
+        .admin-table th {
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .admin-table td {
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle;
+        }
+        .admin-table tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+        .admin-table select.form-input {
+            padding: 0.35rem 0.6rem;
+            font-size: 0.85rem;
+            width: auto;
+            min-width: 130px;
+            margin-bottom: 0;
+        }
+        .btn-danger {
+            background: rgba(244, 63, 94, 0.12);
+            color: #fb7185;
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+        .btn-danger:hover {
+            background: rgba(244, 63, 94, 0.25);
+            border-color: #f43f5e;
+            color: #fff;
+        }
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .section-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .job-admin-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="dashboard-header">
+            <div>
+                <h1 id="welcome-title">Administrator Dashboard</h1>
+                <p class="subtitle" style="margin-bottom: 0;">Platform administration and user management.</p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="stat-users">...</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💼</div>
+                <div class="stat-number" id="stat-jobs">...</div>
+                <div class="stat-label">Total Jobs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📄</div>
+                <div class="stat-number" id="stat-applications">...</div>
+                <div class="stat-label">Total Applications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-number" id="stat-interviews">...</div>
+                <div class="stat-label">Total Interviews</div>
+            </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div class="section-card">
+            <div class="filter-bar">
+                <h3 style="margin-bottom: 0;">👥 User Management</h3>
+                <div>
+                    <select id="user-role-filter" class="form-input" style="width: auto; min-width: 160px; margin-bottom: 0;" onchange="loadUsers()">
+                        <option value="">All Roles</option>
+                        <option value="Candidate">Candidates</option>
+                        <option value="Recruiter">Recruiters</option>
+                        <option value="HiringManager">Hiring Managers</option>
+                        <option value="Admin">Administrators</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Registered Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Job Posts Management Section -->
+        <div class="section-card">
+            <h3 style="margin-bottom: 1.5rem;">💼 Job Postings Management</h3>
+            <div id="jobs-admin-list">
+                <p style="color: var(--text-muted);">Loading jobs...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/jobs.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        // Secure access
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/pages/auth.html';
+        } else {
+            const user = authService.getCurrentUser();
+            if (user && user.role !== 'Admin') {
+                if (user.role === 'HiringManager') window.location.href = '/pages/hiring-manager-dashboard.html';
+                else if (user.role === 'Recruiter') window.location.href = '/pages/recruiter-dashboard.html';
+                else window.location.href = '/pages/candidate-dashboard.html';
+            } else {
+                document.getElementById('welcome-title').textContent = `${user.fullName} (Administrator)`;
+                loadAdminDashboard();
+            }
+        }
+
+        async function loadAdminDashboard() {
+            loadStats();
+            loadUsers();
+            loadJobs();
+        }
+
+        async function loadStats() {
+            try {
+                const stats = await jobsService.getAdminStats();
+                document.getElementById('stat-users').textContent = stats.totalUsers;
+                document.getElementById('stat-jobs').textContent = stats.totalJobs;
+                document.getElementById('stat-applications').textContent = stats.totalApplications;
+                document.getElementById('stat-interviews').textContent = stats.totalInterviews;
+            } catch (err) {
+                console.error("Failed to load admin stats", err);
+                document.getElementById('stat-users').textContent = 'Error';
+                document.getElementById('stat-jobs').textContent = 'Error';
+                document.getElementById('stat-applications').textContent = 'Error';
+                document.getElementById('stat-interviews').textContent = 'Error';
+            }
+        }
+
+        async function loadUsers() {
+            const container = document.getElementById('users-table-body');
+            const filter = document.getElementById('user-role-filter').value;
+            container.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading users...</td></tr>`;
+
+            try {
+                const users = await jobsService.getAllUsers(filter);
+                if (users.length === 0) {
+                    container.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No users found.</td></tr>`;
+                    return;
+                }
+
+                container.innerHTML = users.map(u => {
+                    const regDate = new Date(u.createdAt).toLocaleDateString();
+                    return `
+                        <tr>
+                            <td style="font-weight: 600;">${u.fullName}</td>
+                            <td>${u.email}</td>
+                            <td>
+                                <select class="form-input" onchange="changeRole(${u.id}, this.value)">
+                                    <option value="Candidate" ${u.role === 'Candidate' ? 'selected' : ''}>Candidate</option>
+                                    <option value="Recruiter" ${u.role === 'Recruiter' ? 'selected' : ''}>Recruiter</option>
+                                    <option value="HiringManager" ${u.role === 'HiringManager' ? 'selected' : ''}>Hiring Manager</option>
+                                    <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Administrator</option>
+                                </select>
+                            </td>
+                            <td>${regDate}</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="deleteUser(${u.id}, '${u.fullName.replace(/'/g, "\\'")}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--accent);">Failed to load users: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function changeRole(userId, newRole) {
+            try {
+                await jobsService.updateUserRole(userId, newRole);
+                loadStats();
+            } catch (err) {
+                alert("Failed to change user role: " + err.message);
+                loadUsers(); // reload to reset dropdown value
+            }
+        }
+
+        async function deleteUser(userId, fullName) {
+            if (confirm(`Are you sure you want to delete the user "${fullName}"? This action cannot be undone.`)) {
+                try {
+                    await jobsService.deleteUser(userId);
+                    loadAdminDashboard();
+                } catch (err) {
+                    alert("Failed to delete user: " + err.message);
+                }
+            }
+        }
+
+        async function loadJobs() {
+            const container = document.getElementById('jobs-admin-list');
+            container.innerHTML = `<p style="color: var(--text-muted);">Loading jobs...</p>`;
+
+            try {
+                const jobs = await jobsService.adminGetAllJobs();
+                if (jobs.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-secondary);">No job postings found.</p>`;
+                    return;
+                }
+
+                container.innerHTML = jobs.map(job => `
+                    <div class="job-admin-card">
+                        <div>
+                            <h4 style="margin-bottom: 0.25rem;">${job.title}</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary);">${job.companyName} &bull; ${job.location}</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="tag">${job.jobType}</span>
+                            <button class="btn btn-danger" onclick="deleteJob(${job.id}, '${job.title.replace(/'/g, "\\'")}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                // Fallback to public jobs endpoint if admin list endpoint fails
+                try {
+                    const jobs = await jobsService.getAllJobs();
+                    if (jobs.length === 0) {
+                        container.innerHTML = `<p style="color: var(--text-secondary);">No job postings found.</p>`;
+                        return;
+                    }
+                    container.innerHTML = jobs.map(job => `
+                        <div class="job-admin-card">
+                            <div>
+                                <h4 style="margin-bottom: 0.25rem;">${job.title}</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary);">${job.companyName} &bull; ${job.location}</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span class="tag">${job.jobType}</span>
+                                <button class="btn btn-danger" onclick="deleteJob(${job.id}, '${job.title.replace(/'/g, "\\'")}')">Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (e) {
+                    container.innerHTML = `<p style="color: var(--accent);">Failed to load jobs: ${err.message}</p>`;
+                }
+            }
+        }
+
+        async function deleteJob(jobId, jobTitle) {
+            if (confirm(`Are you sure you want to delete the job posting "${jobTitle}"?`)) {
+                try {
+                    await jobsService.adminDeleteJob(jobId);
+                    loadAdminDashboard();
+                } catch (err) {
+                    alert("Failed to delete job post: " + err.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
