@@ -230,6 +230,7 @@
                     <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.95rem;">
                         Your resume details, work history, skills, and education are managed through the interactive AI Resume Builder.
                     </p>
+                    <div id="candidate-profile-details" style="margin-bottom: 1.5rem; display: none;"></div>
                     <a href="/pages/resume-builder.html" class="btn btn-primary btn-block">🚀 Go to AI Resume Builder</a>
                 </div>
 
@@ -335,6 +336,26 @@
                     document.getElementById('company-web-input').value = profile.companyWebsite || '';
                 } else if (user.role === 'Candidate') {
                     document.getElementById('candidate-section').style.display = 'block';
+                    try {
+                        const profile = await jobsService.getMyProfile();
+                        if (profile) {
+                            document.getElementById('candidate-profile-details').style.display = 'block';
+                            document.getElementById('candidate-profile-details').innerHTML = `
+                                <div class="card" style="padding: 1.2rem; background: rgba(255,255,255,0.01);">
+                                    <h5 style="color: var(--secondary); margin-bottom: 0.5rem;">📝 Bio</h5>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">${profile.bio || 'Not provided'}</p>
+                                    <h5 style="color: var(--secondary); margin-bottom: 0.5rem;">🛠 Skills</h5>
+                                    <div class="tag-container" style="margin-bottom: 1rem;">
+                                        ${profile.skills ? profile.skills.split(';').map(s => \`<span class="tag">\${s.trim()}</span>\`).join('') : '<span class="tag">None</span>'}
+                                    </div>
+                                    <h5 style="color: var(--secondary); margin-bottom: 0.5rem;">📞 Phone</h5>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0;">${profile.phone || 'Not provided'}</p>
+                                </div>
+                            `;
+                        }
+                    } catch (e) {
+                        console.error("Failed to load candidate profile details", e);
+                    }
                 } else if (user.role === 'HiringManager') {
                     document.getElementById('hiringmanager-section').style.display = 'block';
                 } else if (user.role === 'Admin') {

@@ -159,6 +159,7 @@
 
     <footer></footer>
 
+    <script src="/services/googleCalendar.js"></script>
     <script src="/services/api.js"></script>
     <script src="/services/auth.js"></script>
     <script src="/services/jobs.js"></script>
@@ -250,12 +251,22 @@
                     const interview = myInterviews.find(i => i.applicationId === applied.id);
                     if (interview) {
                         const date = new Date(interview.scheduledTime).toLocaleString();
+                        
+                        // We attach the job object properties to the interview so addToGoogleCalendar works
+                        const calendarInterview = {
+                            ...interview,
+                            jobTitle: job.title,
+                            companyName: job.companyName || 'Employer'
+                        };
+                        window.interviewReminders = { [interview.id]: calendarInterview };
+
                         container.innerHTML += `
                             <div class="card" style="margin-top: 1rem; border: 1px dashed var(--secondary); background: rgba(255,255,255,0.01); padding: 1rem; border-radius: var(--radius-sm);">
                                 <h4 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 1rem;">📅 Interview Details</h4>
                                 <p style="font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text-primary);"><strong>Time:</strong> ${date}</p>
                                 <p style="font-size: 0.85rem; margin-bottom: 0.25rem; color: var(--text-primary);"><strong>Location/Link:</strong> <a href="${interview.locationOrLink.startsWith('http') ? interview.locationOrLink : '#'}" target="_blank" style="color: var(--primary); text-decoration: none;">${interview.locationOrLink}</a></p>
                                 ${interview.notes ? `<p style="font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px dashed var(--border-glass); margin-top: 0.5rem;">Notes: ${interview.notes}</p>` : ''}
+                                <button class="btn btn-secondary" onclick="addToGoogleCalendar(window.interviewReminders[${interview.id}], window.interviewReminders[${interview.id}].companyName)" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; margin-top: 0.75rem;">🗓 Add reminder</button>
                             </div>
                         `;
                     }
