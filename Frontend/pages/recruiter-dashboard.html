@@ -223,6 +223,7 @@
     <script src="/services/api.js"></script>
     <script src="/services/auth.js"></script>
     <script src="/services/jobs.js"></script>
+    <script src="/services/candidates.js"></script>
     <script src="/components/navbar.js"></script>
     <script src="/components/footer.js"></script>
 
@@ -609,6 +610,99 @@
             } else if (event.target === feedbackModal) {
                 closeFeedbackModal();
             }
+        }
+
+        // ── Candidate Search ──────────────────────────────────────────────
+        async function handleCandidateSearch(e) {
+            e.preventDefault();
+            const query = document.getElementById('candidate-search-input').value.trim();
+            const btn = document.getElementById('candidate-search-btn');
+            btn.disabled = true;
+            btn.textContent = 'Searching...';
+            await fetchCandidateResults(query);
+            btn.disabled = false;
+            btn.textContent = '🔍 Search';
+        }
+
+        async function fetchCandidateResults(query) {
+            const container = document.getElementById('candidate-search-results');
+            container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Searching...</p>';
+
+            try {
+                const candidates = await candidatesService.searchCandidates(query);
+
+                if (candidates.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary); font-size: 0.9rem;">No candidates found matching your search.</p>';
+                    return;
+                }
+
+                container.innerHTML = candidates.map(c => {
+                    const skills = c.skills ? c.skills.split(';').filter(s => s.trim()) : [];
+                    return `
+                        <div class="candidate-result-card">
+                            <div class="candidate-result-header">
+                                <div style="flex: 1;">
+                                    <h4 style="color: var(--primary); margin-bottom: 0.15rem;">${c.fullName || 'Unknown'}</h4>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">${c.email || ''}</p>
+                                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.5;">${c.bio || 'No summary provided.'}</p>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem;">
+                                        ${skills.slice(0, 6).map(s => `<span class="tag" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">${s.trim()}</span>`).join('')}
+                                        ${skills.length > 6 ? `<span style="font-size: 0.75rem; color: var(--text-muted);">+${skills.length - 6} more</span>` : ''}
+                                    </div>
+                                </div>
+                                <button class="btn btn-secondary" onclick="toggleCandidateDetail(${c.id})" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; white-space: nowrap; margin-left: 1rem;">
+                                    👁 View Profile
+                                </button>
+                            </div>
+
+                            <div class="candidate-search-detail" id="csearch-detail-${c.id}">
+                                ${c.experience && c.experience.length > 0 ? `
+                                    <h5 style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 0.4rem;">💼 Experience</h5>
+                                    <div style="font-size: 0.8rem; margin-bottom: 0.75rem;">${renderSearchList(c.experience)}</div>
+                                ` : ''}
+                                ${c.education && c.education.length > 0 ? `
+                                    <h5 style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 0.4rem;">🎓 Education</h5>
+                                    <div style="font-size: 0.8rem; margin-bottom: 0.75rem;">${renderSearchList(c.education)}</div>
+                                ` : ''}
+                                ${c.projects && c.projects.length > 0 ? `
+                                    <h5 style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 0.4rem;">🚀 Projects</h5>
+                                    <div style="font-size: 0.8rem; margin-bottom: 0.75rem;">${renderSearchProjects(c.projects)}</div>
+                                ` : ''}
+                                ${c.resumePath ? `
+                                    <a href="http://localhost:5260/uploads/${c.resumePath}" target="_blank" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">⬇ Download CV</a>
+                                ` : '<p style="font-size: 0.8rem; color: var(--text-muted);">No CV uploaded.</p>'}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = '<p style="color: var(--accent); font-size: 0.9rem;">Failed to load candidates. Please try again.</p>';
+            }
+        }
+
+        function toggleCandidateDetail(id) {
+            const box = document.getElementById(`csearch-detail-${id}`);
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function renderSearchList(list) {
+            if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
+            return list.map(item => `
+                <div style="margin-bottom: 0.4rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <span style="font-weight: 600; color: var(--text-primary);">${item.title || item.degree || 'Item'}</span>
+                    <span style="color: var(--text-muted);"> · ${item.company || item.school || ''} ${item.years || item.year || ''}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderSearchProjects(list) {
+            if (!list || list.length === 0) return '<p style="color: var(--text-muted);">Not provided.</p>';
+            return list.map(item => `
+                <div style="margin-bottom: 0.4rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.04);">
+                    <span style="font-weight: 600; color: var(--text-primary);">${item.title || item.name || 'Project'}</span>
+                    <span style="color: var(--text-muted);"> — ${item.description || ''}</span>
+                </div>
+            `).join('');
         }
     </script>
 </body>
