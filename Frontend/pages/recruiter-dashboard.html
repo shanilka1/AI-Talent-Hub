@@ -43,6 +43,49 @@
             margin-bottom: 1rem;
             display: none;
         }
+
+        /* Candidate Search Section */
+        .search-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .candidate-search-input-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .candidate-result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .candidate-result-card:hover {
+            border-color: var(--primary);
+        }
+
+        .candidate-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .candidate-search-detail {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
     </style>
 </head>
 
@@ -58,6 +101,19 @@
             </div>
             <div>
                 <a href="/pages/post-job.html" class="btn btn-primary">Create Job Posting</a>
+            </div>
+        </div>
+
+        <!-- Candidate Search Section -->
+        <div class="search-section">
+            <h3 style="margin-bottom: 0.5rem;">🔍 Search Candidates</h3>
+            <p class="subtitle" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Search across all candidates by name, skill, or keyword.</p>
+            <form class="candidate-search-input-group" onsubmit="handleCandidateSearch(event)">
+                <input type="text" id="candidate-search-input" class="form-input" placeholder="e.g. React, Machine Learning, John..." style="flex: 1;">
+                <button type="submit" class="btn btn-primary" id="candidate-search-btn">🔍 Search</button>
+            </form>
+            <div id="candidate-search-results">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Enter a keyword above to find candidates on the platform.</p>
             </div>
         </div>
 
