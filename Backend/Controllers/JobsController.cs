@@ -20,11 +20,13 @@ namespace AITalentHub.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMatchingService _matchingService;
+        private readonly IAuditLogService _auditLogService;
 
-        public JobsController(AppDbContext context, IMatchingService matchingService)
+        public JobsController(AppDbContext context, IMatchingService matchingService, IAuditLogService auditLogService)
         {
             _context = context;
             _matchingService = matchingService;
+            _auditLogService = auditLogService;
         }
 
         public class JobPostDto
@@ -49,6 +51,14 @@ namespace AITalentHub.Controllers
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(idClaim) || !int.TryParse(idClaim, out int userId)) return null;
             return await _context.CandidateProfiles.FirstOrDefaultAsync(c => c.UserId == userId);
+        }
+
+        private (int? UserId, string Email, string Role) GetCurrentUserInfo()
+        {
+            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+            return (int.TryParse(idClaim, out var userId) ? userId : (int?)null, email, role);
         }
 
         [HttpGet]
@@ -170,6 +180,18 @@ namespace AITalentHub.Controllers
             _context.JobPosts.Add(job);
             await _context.SaveChangesAsync();
 
+            var userInfo = GetCurrentUserInfo();
+            await _auditLogService.LogAsync(new AuditLog
+            {
+                UserId = userInfo.UserId,
+                UserEmail = userInfo.Email,
+                UserRole = userInfo.Role,
+                Action = "Create",
+                Entity = "JobPost",
+                EntityId = job.Id.ToString(),
+                Details = $"Job post '{job.Title}' created by {userInfo.Email}."
+            });
+
             return Ok(new { message = "Job post created successfully.", job = job });
         }
 
@@ -196,6 +218,19 @@ namespace AITalentHub.Controllers
             job.SalaryRange = dto.SalaryRange;
 
             await _context.SaveChangesAsync();
+
+            var userInfo = GetCurrentUserInfo();
+            await _auditLogService.LogAsync(new AuditLog
+            {
+                UserId = userInfo.UserId,
+                UserEmail = userInfo.Email,
+                UserRole = userInfo.Role,
+                Action = "Update",
+                Entity = "JobPost",
+                EntityId = job.Id.ToString(),
+                Details = $"Job post '{job.Title}' updated by {userInfo.Email}."
+            });
+
             return Ok(new { message = "Job post updated successfully.", job = job });
         }
 
@@ -216,6 +251,18 @@ namespace AITalentHub.Controllers
 
             _context.JobPosts.Remove(job);
             await _context.SaveChangesAsync();
+
+            var userInfo = GetCurrentUserInfo();
+            await _auditLogService.LogAsync(new AuditLog
+            {
+                UserId = userInfo.UserId,
+                UserEmail = userInfo.Email,
+                UserRole = userInfo.Role,
+                Action = "Delete",
+                Entity = "JobPost",
+                EntityId = job.Id.ToString(),
+                Details = $"Job post '{job.Title}' deleted by {userInfo.Email}."
+            });
 
             return Ok(new { message = "Job post deleted successfully." });
         }
