@@ -15,6 +15,7 @@ namespace AITalentHub.Data
         public DbSet<JobPost> JobPosts { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Interview> Interviews { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
