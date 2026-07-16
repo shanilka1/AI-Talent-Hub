@@ -1,477 +1,214 @@
-## 🚀 AI Talent Hub – AI Powered Resume Builder & Job Matching Platform
-[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-blue?style=flat-square&logo=.net)](https://dotnet.microsoft.com/)
-[![C#](https://img.shields.io/badge/C%23-Latest-purple?style=flat-square&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp/)
-[![SQL Server](https://img.shields.io/badge/SQL%20Server-Database-red?style=flat-square&logo=microsoftsqlserver)](https://www.microsoft.com/en-us/sql-server)
-[![HTML5](https://img.shields.io/badge/HTML5-Frontend-orange?style=flat-square&logo=html5)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-Design-blue?style=flat-square&logo=css3)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-Frontend-yellow?style=flat-square&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![AI Powered](https://img.shields.io/badge/AI-Powered-success?style=flat-square&logo=openai)](https://openai.com/)
-[![Last Commit](https://img.shields.io/github/last-commit/shanilka1/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub/commits)
-[![Repo Size](https://img.shields.io/github/repo-size/shanilka1/ai-talent-hub?style=flat-square)](https://github.com/USERNAME/ai-talent-hub)
-⸻
+# 🚀 AI Talent Hub – AI Powered Resume Builder & Job Matching Platform
 
-### 🌟 Overview
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-blue?style=for-the-badge&logo=.net)](https://dotnet.microsoft.com/)
+[![C#](https://img.shields.io/badge/C%23-Latest-purple?style=for-the-badge&logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-Database-red?style=for-the-badge&logo=microsoftsqlserver)](https://www.microsoft.com/en-us/sql-server)
+[![Bootstrap 5](https://img.shields.io/badge/Bootstrap-5-purple?style=for-the-badge&logo=bootstrap)](https://getbootstrap.com/)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-success?style=for-the-badge&logo=openai)](https://openai.com/)
 
-AI Talent Hub is an intelligent recruitment system that connects job seekers and employers using AI-driven matching technology.
+AI Talent Hub is an advanced, intelligent recruitment ecosystem engineered to bridge the gap between job seekers and corporate recruiters using AI-driven matching technology. Candidates can dynamically build smart resumes, track applications, and optimize their profiles, while recruiters can efficiently post jobs, manage applicants via an ATS pipeline, and dynamically score candidate capabilities against core requirements.
 
-It allows candidates to build smart resumes, apply for jobs, and track applications while recruiters can post jobs, manage applicants, and identify the best talent efficiently.
+---
 
-⸻
-
-### ✨ Features
+## ✨ System Modules & Features
 
 ### 👨‍🎓 Candidate Features
-
-* AI Resume Builder
-* Resume Upload & Management
-* Job Search & Filtering
-* Smart Job Recommendations
-* Application Tracking System
-* Profile Management
+* **AI Resume Builder & Management:** Structurally compile, build, and manage personal resumes.
+* **Resume Upload & Parsing:** Auto-extract candidate skills and experience histories from raw files (CV Upload Option for AI Read).
+* **Smart Job Recommendations:** Intuitive system recommendation algorithms based on skill profiles.
+* **Application Tracking System (ATS):** Interactive dashboard indicating application progress status and applicant counts.
+* **Profile Management:** Comprehensive role-based profile analytics for student profiles.
 
 ### 🏢 Recruiter Features
+* **Job Posting & Details System:** Seamless creation, publishing, and configuration of dynamic job ads with role-based UIs.
+* **Candidate Search & Filtering:** Sift through multiple active candidates effortlessly via custom queries on the recruiter dashboard.
+* **Applicant Tracking System (ATS):** Comprehensive recruitment pipeline tracking from intake to final selection.
+* **Interview Scheduling:** Integrated third-party scheduling component utilizing the **Google Calendar API** for real-time reminders.
+* **Company Profile Management:** Control corporate branding, parameters, and details.
 
-* Job Posting System
-* Candidate Search & Filtering
-* Applicant Tracking System (ATS)
-* Interview Scheduling
-* Company Profile Management
+### 🤖 AI Core Features
+* **Gemini AI Integration:** Deep scanning of text to extract key professional metrics from uploaded resumes.
+* **Skill Extraction & Projects Layer:** Structural classification of technology expertise and projects.
+* **Job-Candidate Matching:** Compute accuracy rankings based on candidate capabilities vs job prerequisites.
 
-### 🤖 AI Features
+### 🔐 Security & Infrastructure
+* **JWT Authentication:** Stateful tokenization patterns protecting backend communication routing.
+* **Role-Based Access Control (RBAC):** Tiered operational profiles for Candidates, Recruiters, and Administrators.
+* **Data Encryption:** Enterprise-grade security handling sensitive user details.
 
-* Resume Parsing & Analysis
-* Skill Extraction
-* Job-Candidate Matching
-* Candidate Ranking System
-* Smart Recommendations
+---
 
-⸻
+## ⚡ Tech Stack
 
-### ⚡ Tech Stack
+* **Frontend:** HTML5, CSS3, JavaScript (ES6), Bootstrap 5 Framework
+* **Backend:** ASP.NET Core 8.0 / Compiled for .NET 10.0 runtime environment
+* **Database:** Microsoft SQL Server (Entity Framework Core migrations pattern)
+* **AI Engine Layer:** OpenAI API / Google Gemini AI API (`gemini-pro`)
+* **Third-Party Integrations:** Google Calendar API Suite
+* **Development Tools:** Visual Studio 2022, Git Version Control, GitHub Ecosystem
 
-* Frontend: HTML, CSS, JavaScript, Bootstrap 5
-* Backend: ASP.NET Core (C#)
-* Database: Microsoft SQL Server
-* AI Integration: OpenAI API / Matching Engine
-* Tools: Visual Studio 2022, Git, GitHub
+---
 
-⸻
+## 📁 Project Structure
 
-### 📁 Project Structure
-
-```
+```text
 AI-Talent-Hub/
 │
 ├── Frontend/
-│   ├── pages/
-│   ├── components/
-│   ├── assets/
-│   └── services/
+│   ├── pages/               # Candidate & Recruiter Dashboards, Search Interfaces, Profiles
+│   ├── components/          # Shared Layout Components (Navbars, Footers, Modals)
+│   ├── assets/              # Core stylesheets, styling architectures, and site imagery
+│   └── services/            # Frontend Web Client API handlers & Google Calendar integrations
 │
 ├── Backend/
-│   ├── Controllers/
-│   ├── Models/
-│   ├── Services/
-│   └── APIs/
+│   ├── Controllers/         # Endpoint Routing Handlers (Authentication, Job Matching, Postings)
+│   ├── Models/              # Data Entities & Database Relational Mapping Classes
+│   ├── Services/            # Business Logic Implementation & Core AI Integrations
+│   └── Data/                # ApplicationDbContext & Entity Framework Core Migration History
 │
 ├── Database/
-│   ├── tables/
-│   ├── procedures/
-│   └── scripts/
+│   ├── tables/              # DDL scripts outlining standard system databases
+│   ├── procedures/          # Stored procedures maximizing processing speed
+│   └── scripts/             # Mock data scripts and seed data execution profiles
 │
-└── README.md
+└── README.md                # System Documentation File
 ```
+## 👥 Project Team & Contributions
 
-⸻
+### 👑 Group Leader
+> **Shanilka Lakshan** (`shanilka1`) – **Feature Lead**  
+> Managed end-to-end feature integrations, designed and built the recruiter candidate search section UI, oversaw database profile seeding configurations, and carried out structural project quality control across major milestones.
 
-### 👥 Team Members
+### 👨‍💻 Development Team & Core Focus Areas
 
-👑 Group Leader
+> **Kawya Dissanayaka** (`KawyaDissanayaka`) – **Technical & Project Lead**  
+> Orchestrated full project infrastructure configuration, established target compilation parameters for the `.NET 10.0` runtime environment, configured multi-platform deployment routing (GitHub Pages for Frontend, Render/Azure for Backend APIs), purged legacy codebase implementations, and structured enterprise-grade environment `.gitignore` profiles.
 
-* Shanilka Lakshan
+> **Darshana Chinthaka** (`DarshanaChinthaka`) – **Backend Architect**  
+> Designed core RESTful Web APIs, formulated internal relational database schemas using Entity Framework Core, deployed operational candidate/recruiter dashboard UI flows, built structured project upload layers, and established deep CV AI-reading pipeline hooks.
 
-### 👨‍💻 Developers
+> **Minidu Mansara** (`minidu1`) – **Frontend Integration Lead**  
+> Successfully deployed Google Calendar API communication mechanics, automated live interview reminder dispatches, refactored redundant code segments, resolved navigation layout discrepancies across different roles, and managed system runtime bug squashing.
 
-* Kawya Dissanayaka
-* Darshana Chinthaka
-* Kavindi Perera
-* Minidu Mansara
-* Desanda Chathmal
+> **Desanda Chathmal** (`Desanda`) – **Quality Assurance Specialist**  
+> Monitored integration testing frameworks, mapped strict system verification endpoints, and audited workflow behavioral stability across all integrated branches.
 
-⸻
+> **Kavindi Perera** (`Kavindi`) – **UI/UX Wireframing Specialist**  
+> Authored detailed technical system documentation and drafted early-stage UI architecture wireframes.
 
-### 📊 System Modules
+## 📊 Repository Development & Branch Insights
 
-* User Authentication System
-* Candidate Management System
-* Recruiter Management System
-* Job Posting & Application System
-* AI Matching Engine
-* Admin Dashboard
+### 📋 Branch Matrix & Production Status
+* **Total Active Branches:** 9
+* **Report Extraction Reference Date:** 2026-07-16
+* **Development Duration:** ~29 Days of Active Implementation Trace
 
-⸻
-
-🔒 Security Features
-
-* JWT Authentication
-* Role-Based Access Control
-* Password Encryption
-* Secure API Communication
-
-⸻
-
-🚀 Getting Started
-
-Clone Repository
-
-```
-git clone https://github.com/USERNAME/ai-talent-hub.git
-```
-
-Open Project
-
-```
-cd ai-talent-hub
-```
-
-Run Backend
-
-```
-dotnet run
-```
-Run Frontend
-
-```
-open index.html
-```
-
-⸻
-
-🔮 Future Enhancements
-
-* AI Interview Chatbot
-* Video Interview System
-* Mobile App Version
-* Advanced Analytics Dashboard
-* Career Path Prediction
-
-⸻
-
-📄 License
-
-This project is for educational purposes only.
-
-⸻
-
-⭐ AI Talent Hub
-
-```
-“Connecting Talent with Opportunities Through Artificial Intelligence”
-```
-
-# AI Talent Hub - Branches & Complete Commit History Report
-
-**Report Date:** 2026-07-16  
-**Repository:** shanilka1/AI-Talent-Hub  
-**Total Branches:** 9  
-**Language Composition:** HTML (61.1%), C# (30.6%), JavaScript (5.2%), CSS (2.9%), Dockerfile (0.2%)
-
----
-
-## 📋 Branch Overview
-
-| # | Branch Name | Latest Commit | Commit SHA | Last Updated | Status |
-|---|---|---|---|---|---|
-| 1 | **main** | Merge PR #11 - Candidate search | d37f0baa | 2026-07-16 15:54 | ✅ Primary |
-| 2 | **Shanilka** | Add seed data for candidates | e67e3ec6 | 2026-07-16 16:04 | 🔄 Active |
-| 3 | **Darshana** | Implement profile & job-details pages | 66cb7485 | 2026-07-14 16:05 | 🔄 Active |
-| 4 | **kawya** | Merge main into kawya | 40c3e0b4 | 2026-07-12 07:13 | 🔄 Active |
-| 5 | **minidu** | Fix nav bar | beede59d | 2026-07-12 18:04 | ✅ Merged |
-| 6 | **Desanda** | (Latest: No recent activity) | 5bcb26a6 | N/A | ⏸️ Inactive |
-| 7 | **Kavindi** | (Latest: No recent activity) | 15acf027 | N/A | ⏸️ Inactive |
-| 8 | **TestBranch** | (Latest: No recent activity) | 5bcb26a6 | N/A | ⏸️ Inactive |
-| 9 | **gh-pages** | (GitHub Pages Deploy) | cc5d7c68 | N/A | 📄 Pages |
-
----
-
-## 🔀 Branch Details & Commits
-
-### Branch 1: **main** (Primary Development Branch)
-
-**Latest Commits (Top 12):**
-
-| # | Hash | Author | Date | Message |
+| # | Branch Name | Latest Commit Message | Status | Core Branch Focus Area |
 |---|---|---|---|---|
-| 1 | d37f0baa | GitHub (KawyaDissanayaka) | 2026-07-16 15:54 | **Merge PR #11** - Shanilka branch merge |
-| 2 | c8469fd2 | shanilka1 | 2026-07-16 15:47 | Add candidate search functionality to recruiter dashboard |
-| 3 | 35ef9154 | shanilka1 | 2026-07-16 15:46 | Add candidate search section to recruiter dashboard |
-| 4 | eaaad5b1 | KawyaDissanayaka | 2026-07-16 15:30 | Implement candidate search feature (frontend + backend) |
-| 5 | fe8c7a79 | KawyaDissanayaka | 2026-07-16 15:30 | Add initial migration files and update appsettings |
-| 6 | e026dbda | GitHub (DarshanaChinthaka) | 2026-07-14 08:15 | **Merge PR #8** - Interview reminder + Google Calendar |
-| 7 | beede59d | minidu1 | 2026-07-12 18:04 | Fix nav bar - Remove "find job" from nav in admin/manager |
-| 8 | fafedea5 | minidu1 | 2026-07-12 16:07 | Clear redundant codes |
-| 9 | eae6f4f1 | minidu1 | 2026-07-12 15:53 | Api key variable changed |
-| 10 | e2719d1a | minidu1 | 2026-07-12 15:40 | Bug fix - googleCalender typo + script loading |
-| 11 | e4954e6e | minidu1 | 2026-07-12 15:16 | Edit calendar func to add reminder on Google Calendar |
-| 12 | cbd5bf8d | minidu1 | 2026-07-12 13:02 | Create function to add reminder to the calendar |
+| 1 | **main** | Merge PR #11 - Shanilka branch merge | `✅ Primary` | Stable production-ready deployment trunk |
+| 2 | **Shanilka** | Add seed data for candidate profiles | `🔄 Active` | Candidate operational trace and testing |
+| 3 | **Darshana** | Implement profile & job-details pages | `🔄 Active` | Core page controllers & database extensions |
+| 4 | **kawya** | Merge main into kawya | `🔄 Active` | Infrastructure configuration, cleanup, & deployment |
+| 5 | **minidu** | Fix nav bar | `✅ Merged` | Google Calendar integrations & navbar tweaks |
+| 6 | **Desanda** | *(Latest: No recent activity)* | `⏸️ Inactive` | Quality assurance and verification staging |
+| 7 | **Kavindi** | *(Latest: No recent activity)* | `⏸️ Inactive` | Documentation logging branch |
+| 8 | **TestBranch**| *(Latest: No recent activity)* | `⏸️ Inactive` | Sandbox test bedding area |
+| 9 | **gh-pages**  | *(GitHub Pages Deploy)* | `📄 Pages` | Hosting destination for static frontend clients |
 
-**Key Features Implemented on Main:**
-- ✅ Candidate Search System
-- ✅ Google Calendar Integration
-- ✅ Interview Reminders
-- ✅ Recruiter Dashboard
-- ✅ Database Migrations
-- ✅ API Configuration
+### 📈 Language Distribution Statistics
+* **HTML:** 61.1%
+* **C# (.NET Source Code):** 30.6%
+* **JavaScript:** 5.2%
+* **CSS:** 2.9%
+* **Dockerfile:** 0.2%
 
 ---
 
-### Branch 2: **Shanilka** (Feature Branch - Feature Lead)
+## 🛠️ Complete Commit History & Feature Log
 
-**Latest Commits (Top 5):**
+Below is the structured feature trace implemented across active development lines, extracted directly from developer commit logs up to **July 16, 2026**:
 
-| Hash | Author | Date | Message |
-|---|---|---|---|
-| e67e3ec6 | shanilka1 | 2026-07-16 16:04 | **Add seed data for candidate profiles** in database |
-| c8469fd2 | shanilka1 | 2026-07-16 15:47 | Add candidate search functionality to recruiter dashboard |
-| 35ef9154 | shanilka1 | 2026-07-16 15:46 | Add candidate search section to recruiter dashboard |
+### 1. Main Development Branch (`main`)
+> 🔍 **Core Focus:** Stable production-ready deployment trunk
+* **Candidate Search System:** Implemented full backend query filters paired with frontend UI integration to allow recruiters to look up candidates dynamically (**PR #11** by `KawyaDissanayaka` & `shanilka1`).
+* **Database Initializations:** Added initial Entity Framework Core migration files and configured database schemas inside `appsettings.json` (`KawyaDissanayaka`).
+* **Google Calendar Integration:** Merged **PR #8** to connect interview scheduling routines with the Google Calendar API (`DarshanaChinthaka`).
+* **UI Navigation Optimization:** Fixed top navigation bar layouts to dynamically strip the "Find Job" reference for administrative/manager views (`minidu1`).
+* **Code Optimization:** Cleaned out redundant codes, adjusted global API Key variable targets, and resolved `googleCalendar` script loading synchronization typos (`minidu1`).
 
-**Development Focus:** Candidate management, search features, seed data
+### 2. Feature Lead Branch (`Shanilka`)
+> 🔍 **Core Focus:** Candidate operational trace and testing
+* **Mock Data Ingestion:** Written and executed database injection scripts to seed complete, real-world profile variations for initial candidate lookups.
+* **Recruiter UX Sourcing:** Standardized candidate search layout boxes inside the recruiter module dashboard interface.
 
----
+### 3. Backend Architecture Branch (`Darshana`)
+> 🔍 **Core Focus:** Core page controllers & database extensions
+* **Role-Based UI Views:** Configured profile pages and job detail sub-views to adapt visually depending on JWT authorization roles.
+* **CV Parsing Hook:** Implemented file upload buffers to capture raw candidate document strings for AI reading capability.
+* **Applicant Metrical Trace:** Created tracking mechanisms to trace total job-specific applicant counts natively on the dashboard grids.
+* **Projects Infrastructure:** Added structural database tables mapping specific candidate independent/academic projects.
 
-### Branch 3: **Darshana** (Backend Development Branch)
+### 4. Infrastructure & Configuration Branch (`kawya`)
+> 🔍 **Core Focus:** Infrastructure configuration, cleanup, & deployment
+* **Modern Runtime Target:** Configured build scripts and compiled backend pipelines to execute safely on the latest `.NET 10.0` runtime.
+* **Security & Environment Cleansing:** Implemented a robust corporate `.gitignore` pattern masking sensitive operational tokens and IDE settings.
+* **Legacy Codebase Purge:** Completely removed old app framework structures to ensure high-speed processing capabilities on clean code.
 
-**Latest Commits (Top 5):**
+### 5. Third-Party Integrations Branch (`minidu`)
+> 🔍 **Core Focus:** Google Calendar integrations & navbar tweaks
+* **Reminder Dispatch Logic:** Built automated functions tracking upcoming interviews and injecting corresponding notification schedules into the Google Calendar API interface.
 
-| Hash | Author | Date | Message |
-|---|---|---|---|
-| 66cb7485 | DarshanaChinthaka | 2026-07-14 16:05 | **Implement profile and job-details pages** with role-based UI |
-| ba2e9868 | DarshanaChinthaka | 2026-07-14 15:56 | Implement candidate/recruiter dashboards + Google Calendar |
-| 307654a2 | DarshanaChinthaka | 2026-07-11 12:55 | Add CV upload option for AI read |
-| a77f6046 | DarshanaChinthaka | 2026-07-11 12:25 | List applicant count |
-| 445bc712 | DarshanaChinthaka | 2026-07-11 10:52 | Add project section |
+* ---
 
-**Development Focus:** 
-- Backend API implementation
-- Database schema
-- Resume parsing
-- UI/Dashboard components
-- Gemini AI integration
+## 🚀 Getting Started & Installation Guide
 
----
+Follow these steps to set up and run the dynamic talent acquisition platform environment locally:
 
-### Branch 4: **kawya** (Infrastructure & Configuration Branch)
+### 📋 Prerequisites
+Before installation, ensure you have the following frameworks and tools installed on your machine:
+* **SDK Framework:** [.NET 10.0 SDK](https://dotnet.microsoft.com/download) or higher installed.
+* **Database Engine:** SQL Server / PostgreSQL (or LocalDB for local debugging lines).
+* **Package Management:** NuGet Package Manager (bundled directly with your .NET CLI/IDE).
+* **Code Editor:** Visual Studio 2022, Visual Studio Code, or JetBrains Rider.
 
-**Latest Commits (Top 5):**
+### 💻 Local Setup Procedures
 
-| Hash | Author | Date | Message |
-|---|---|---|---|
-| 40c3e0b4 | KawyaDissanayaka | 2026-07-12 07:13 | **Merge main into kawya** |
-| 426181ed | KawyaDissanayaka | 2026-07-12 07:09 | **Remove legacy app implementation** - Clean codebase |
-| 3a42b80c | KawyaDissanayaka | 2026-07-12 06:48 | Add .gitignore for environment & IDE config |
-| 82fdb510 | KawyaDissanayaka | 2026-07-12 06:48 | Build & compile backend for .NET 10.0 runtime |
-| 7449886a | KawyaDissanayaka | 2026-07-12 05:13 | Initial Commit for kawya branch |
+1. **Clone the Repository:**
+   ```bash
+   git clone [https://github.com/your-username/AI-Talent-Hub.git](https://github.com/your-username/AI-Talent-Hub.git)
+   cd AI-Talent-Hub
+2. **Set Up the Backend (.NET Web API):**
+   Navigate to the backend project directory:
+     ```bash
+     cd backend
+     ```
+   Open the `appsettings.json` file and configure your database connection string under `ConnectionStrings:DefaultConnection` to match your local SQL Server / Database settings.
+   Restore the NuGet packages and apply database migrations:
+     ```bash
+     dotnet restore
+     dotnet ef database update
+     ```
+   Run the backend server:
+     ```bash
+     dotnet run
+     ```
+   The backend API server will start running locally (usually on `http://localhost:5000` or `https://localhost:5001`).
 
-**Development Focus:**
-- Infrastructure setup
-- Hosting configuration (GitHub Pages + Render)
-- Deployment configuration (Azure, Render)
-- Project structure initialization
-- Legacy code cleanup
-
----
-
-### Branch 5: **minidu** (UI/Calendar Features Branch)
-
-**Latest Commits (Top 5):**
-
-| Hash | Author | Date | Message |
-|---|---|---|---|
-| beede59d | minidu1 | 2026-07-12 18:04 | **Fix nav bar** - Remove "find job" button |
-| fafedea5 | minidu1 | 2026-07-12 16:07 | Clear redundant codes |
-| eae6f4f1 | minidu1 | 2026-07-12 15:53 | Api key variable changed |
-| e2719d1a | minidu1 | 2026-07-12 15:40 | **Bug fix** - googleCalender typo + script loading |
-| e4954e6e | minidu1 | 2026-07-12 15:16 | Edit calendar func - Google Calendar API integration |
-
-**Development Focus:**
-- Google Calendar integration
-- Interview reminder feature
-- Navigation bar improvements
-- Bug fixes and code cleanup
-
----
-
-### Branches 6-8: **Desanda, Kavindi, TestBranch** (Inactive)
-
-These branches have no recent activity and appear to be dormant or archived states.
-
----
-
-### Branch 9: **gh-pages** (GitHub Pages)
-
-Configured for GitHub Pages deployment. Used for static site hosting.
+3. **Set Up the Frontend / Client Server (Node.js):**
+   Open a new terminal window and navigate to the frontend environment directory:
+     ```bash
+     cd frontend
+     ```
+     ```
+   Launch the client server using Node:
+     ```bash
+     node server.js
+     ```
+   The client portal will now be running on your designated local hosting port (usually `http://localhost:3000`).
 
 ---
 
-## 📊 Comprehensive Commit Statistics
-
-### By Branch:
-
-| Branch | Total Commits | Latest Date | Key Contributors |
-|---|---|---|---|
-| main | 30+ | 2026-07-16 | shanilka1, KawyaDissanayaka, minidu1, DarshanaChinthaka |
-| Darshana | 20+ | 2026-07-14 | DarshanaChinthaka |
-| Shanilka | 5+ | 2026-07-16 | shanilka1 |
-| kawya | 8+ | 2026-07-12 | KawyaDissanayaka |
-| minidu | 6+ | 2026-07-12 | minidu1 |
-
-### By Author:
-
-| Author | Commits | Specialization |
-|---|---|---|
-| **KawyaDissanayaka** | 20+ | Backend, Infrastructure, Project Lead |
-| **DarshanaChinthaka** | 18+ | Backend APIs, Database, UI Components |
-| **shanilka1** | 8+ | Feature Integration, Testing, Quality |
-| **minidu1** | 6+ | Frontend, UI/UX, Calendar Integration |
-
----
-
-## 🎯 Development Timeline
-
-
----
-
-## ✨ Key Features by Branch Status
-
-### 🟢 Active/Recent Branches:
-
-**main:**
-- Candidate Search System ✅
-- Google Calendar Integration ✅
-- Interview Reminders ✅
-- Recruiter Dashboard ✅
-- Resume Builder with AI ✅
-- Profile Management ✅
-
-**Shanilka:**
-- Candidate Profile Seed Data 🆕
-- Feature Testing & Integration
-
-**Darshana:**
-- Role-based UI Components
-- Job Details Page
-- Candidate Dashboard
-
-**kawya:**
-- Infrastructure & Deployment
-- .NET Configuration
-
----
-
-## 🔗 Branch Relationships
-
-
-
----
-
-## 📈 Repository Health Summary
-
-| Metric | Status |
-|---|---|
-| Active Branches | 5 of 9 (56%) |
-| Recent Commits | ✅ Daily (Jul 16, 2026) |
-| Test Coverage | 🔄 In Development |
-| Documentation | ✅ Good (README, Badges) |
-| CI/CD | 🔄 GitHub Actions Config |
-| Code Quality | ✅ Improving (Cleanup commits) |
-| Team Collaboration | ✅ Strong (Multiple PRs) |
-
----
-
-## 🚀 Next Steps & Recommendations
-
-1. **Archive Inactive Branches:** Desanda, Kavindi, TestBranch
-2. **Finalize PR #11:** Complete candidate search feature merge
-3. **Database Seeding:** Expand seed data for testing
-4. **API Documentation:** Complete Swagger/OpenAPI specs
-5. **Testing Framework:** Implement unit & integration tests
-6. **Deployment:** Configure CI/CD pipeline for Render
-7. **Code Review:** Establish PR review checklist
-
----
-
-## 📚 Repository Statistics
-
-- **Total Commits:** 50+
-- **Active Developers:** 5
-- **Branches:** 9
-- **Pull Requests Merged:** 11
-- **Languages:** 5 (HTML, C#, JavaScript, CSS, Dockerfile)
-- **Development Duration:** ~29 days (Jun 18 - Jul 16, 2026)
-- **Commits/Day Average:** ~1.7
-
----
-
-## 🔐 Security & Configuration
-
-**Hosting Platforms:**
-- GitHub Pages (Frontend)
-- Render.com (Backend API)
-- Azure (Alternative)
-
-**Database:** Microsoft SQL Server
-
-**API Documentation:** Swagger/OpenAPI 3.0
-
-**Authentication:** JWT + Role-Based Access Control
-
----
-
-## 📞 Contact & Resources
-
-- **Repository:** https://github.com/shanilka1/AI-Talent-Hub
-- **Project Lead:** Shanilka Lakshan (shanilka1)
-- **Technical Lead:** Kawya Dissanayaka (KawyaDissanayaka)
-- **Backend Lead:** Darshana Chinthaka (DarshanaChinthaka)
-
----
-
-**Report Generated:** 2026-07-16 UTC  
-**Document Version:** 1.0  
-**Status:** Complete ✅
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## 🔒 Security & Contribution Guidelines
+* **Environment Governance:** Do not push local configurations, system secrets, or sensitive credentials to public tracking branches. Ensure all unnecessary tracking profiles strictly adhere to the project's `.gitignore` rules.
+* **Feature Branches:** Always branch off (`git checkout -b feature/your-feature-name`) to isolate new components or updates instead of committing directly onto active production trunks.   
 
