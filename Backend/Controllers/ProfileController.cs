@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AITalentHub.Data;
 using AITalentHub.Models;
+using System.Linq;
 
 namespace AITalentHub.Controllers
 {
@@ -82,6 +83,50 @@ namespace AITalentHub.Controllers
 
             await _context.SaveChangesAsync();
             return Ok(new { message = "Recruiter profile updated successfully.", profile = profile });
+        }
+
+        [HttpGet("candidates/search")]
+        public async Task<IActionResult> SearchCandidates([FromQuery] string query = "")
+        {
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (userRole != "Recruiter" && userRole != "Admin")
+            {
+                return Forbid();
+            }
+
+            var q = query.ToLower();
+            
+            var candidatesQuery = _context.CandidateProfiles
+                .Include(c => c.User)
+                .AsQueryable();
+                
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                candidatesQuery = candidatesQuery.Where(c => 
+                    (c.User != null && c.User.FullName.ToLower().Contains(q)) ||
+                    (c.Skills != null && c.Skills.ToLower().Contains(q)) ||
+                    (c.Bio != null && c.Bio.ToLower().Contains(q))
+                );
+            }
+
+            var candidates = await candidatesQuery.ToListAsync();
+
+            var result = candidates.Select(c => new
+            {
+                id = c.Id,
+                userId = c.UserId,
+                fullName = c.User?.FullName,
+                email = c.User?.Email,
+                bio = c.Bio,
+                skills = c.Skills,
+                experience = string.IsNullOrEmpty(c.ExperienceJson) ? new object[0] : System.Text.Json.JsonSerializer.Deserialize<object>(c.ExperienceJson),
+                education = string.IsNullOrEmpty(c.EducationJson) ? new object[0] : System.Text.Json.JsonSerializer.Deserialize<object>(c.EducationJson),
+                projects = string.IsNullOrEmpty(c.ProjectsJson) ? new object[0] : System.Text.Json.JsonSerializer.Deserialize<object>(c.ProjectsJson),
+                resumePath = c.ResumePath,
+                updatedAt = c.UpdatedAt
+            });
+
+            return Ok(result);
         }
     }
 }

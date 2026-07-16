@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Talent Hub - Candidate Search</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <style>
+        .search-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .candidate-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .candidate-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .candidate-header {
+            margin-bottom: 1rem;
+        }
+
+        .candidate-name {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .candidate-bio {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .candidate-detail-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="search-container">
+            <h1 style="margin-bottom: 0.5rem;">🔍 Search Candidates</h1>
+            <p class="subtitle" style="margin-bottom: 2rem;">Find the perfect talent for your next role across the platform.</p>
+            
+            <form class="search-input-group" onsubmit="handleSearch(event)">
+                <input type="text" id="search-input" class="form-input" placeholder="Search by name, skills, or keywords..." style="flex: 1;">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <div id="results-container" class="grid-3">
+            <!-- Results will be loaded here dynamically -->
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
+                <p>Enter a search term above to find candidates, or click search to view all.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <script src="/services/api.js"></script>
+    <script src="/services/auth.js"></script>
+    <script src="/services/candidates.js"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
+
+    <script>
+        // Secure access
+        if (!authService.isAuthenticated()) {
+            window.location.href = '/pages/auth.html';
+        } else {
+            const user = authService.getCurrentUser();
+            if (user && user.role !== 'Recruiter' && user.role !== 'Admin') {
+                window.location.href = '/index.html';
+            } else {
+                // Initial load: fetch all
+                fetchCandidates('');
+            }
+        }
+
+        async function handleSearch(e) {
+            e.preventDefault();
+            const query = document.getElementById('search-input').value.trim();
+            await fetchCandidates(query);
+        }
+
+        async function fetchCandidates(query) {
+            const container = document.getElementById('results-container');
+            container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;"><p>Searching...</p></div>';
+
+            try {
+                const candidates = await candidatesService.searchCandidates(query);
+                
+                if (candidates.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-glass);">
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">No candidates found matching your search.</p>
+                            <button class="btn btn-secondary" onclick="clearSearch()">Clear Search</button>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = candidates.map(c => {
+                    const skills = c.skills ? c.skills.split(';').filter(s => s.trim()) : [];
+                    const hasDetails = c.experience.length > 0 || c.education.length > 0 || c.projects.length > 0 || c.resumePath;
+                    
+                    return `
+                        <div class="candidate-card">
+                            <div>
+                                <div class="candidate-header">
+                                    <h3 class="candidate-name">${c.fullName || 'Unknown Candidate'}</h3>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted);">${c.email || ''}</p>
+                                </div>
+                                
+                                <p class="candidate-bio">${c.bio || 'No professional summary provided.'}</p>
+                                
+                                <div class="skills-container">
+                                    ${skills.length > 0 
+                                        ? skills.slice(0, 5).map(s => `<span class="tag" style="font-size: 0.7rem; padding: 0.15rem 0.4rem;">${s.trim()}</span>`).join('') 
+                                        : '<span style="font-size: 0.8rem; color: var(--text-muted);">No skills listed</span>'
+                                    }
+                                    ${skills.length > 5 ? `<span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">+${skills.length - 5} more</span>` : ''}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <button class="btn btn-secondary btn-block" onclick="toggleDetails(${c.id})" style="font-size: 0.85rem;">${hasDetails ? '👁 View Full Profile' : 'Details'}</button>
+                                
+                                <!-- Detailed Resume Box -->
+                                <div class="candidate-detail-box" id="detail-box-${c.id}" style="margin-top: 1rem; text-align: left;">
+                                    ${c.experience && c.experience.length > 0 ? `
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">💼 Experience</h5>
+                                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                            ${renderListJson(c.experience)}
+                                        </div>
+                                    ` : ''}
+
+                                    ${c.education && c.education.length > 0 ? `
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">🎓 Education</h5>
+                                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                            ${renderListJson(c.education)}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${c.projects && c.projects.length > 0 ? `
+                                        <h5 style="color: var(--secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">🚀 Projects</h5>
+                                        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                            ${renderProjectsListJson(c.projects)}
+                                        </div>
+                                    ` : ''}
+
+                                    ${c.resumePath ? `
+                                        <div style="margin-top: 1rem; padding: 0.5rem; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99,102,241,0.3); border-radius: var(--radius-sm); text-align: center;">
+                                            <a href="http://localhost:5260/uploads/${c.resumePath}" target="_blank" class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; text-decoration: none; display: inline-block;">⬇ Download CV</a>
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${!hasDetails ? '<p style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">No additional details provided.</p>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: var(--accent); padding: 3rem;">
+                        <p>Failed to load candidates. Please try again later.</p>
+                    </div>`;
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            fetchCandidates('');
+        }
+
+        function toggleDetails(id) {
+            const box = document.getElementById(`detail-box-${id}`);
+            if (box.style.display === 'block') {
+                box.style.display = 'none';
+            } else {
+                box.style.display = 'block';
+            }
+        }
+
+        function renderListJson(list) {
+            if (!list || list.length === 0) return '';
+            return list.map(item => `
+                <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                    <p style="font-weight: 600; color: var(--text-primary);">${item.title || item.degree || 'Item'}</p>
+                    <p style="color: var(--text-muted); font-size: 0.75rem;">${item.company || item.school || ''} &bull; ${item.years || item.year || ''}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderProjectsListJson(list) {
+            if (!list || list.length === 0) return '';
+            return list.map(item => `
+                <div style="margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem;">
+                    <p style="font-weight: 600; color: var(--text-primary);">${item.title || item.name || 'Project'}</p>
+                    <p style="color: var(--text-muted); font-size: 0.75rem;">${item.description || ''}</p>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
