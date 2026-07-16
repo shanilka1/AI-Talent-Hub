@@ -129,6 +129,41 @@
             border-radius: var(--radius-sm);
             margin-bottom: 0.75rem;
         }
+        .audit-log-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+        }
+        .audit-log-table th {
+            text-align: left;
+            padding: 0.9rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .audit-log-table td {
+            padding: 0.9rem 1rem;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: top;
+        }
+        .audit-log-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .log-badge {
+            display: inline-block;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.05);
+        }
     </style>
 </head>
 <body>
@@ -208,6 +243,34 @@
                 <p style="color: var(--text-muted);">Loading jobs...</p>
             </div>
         </div>
+
+        <!-- Audit Logs Section -->
+        <div class="section-card">
+            <div class="filter-bar">
+                <h3 style="margin-bottom: 0;">📜 Recent Audit Logs</h3>
+                <span class="tag">Latest 50</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="audit-log-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-logs-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted);">Loading audit logs...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <footer></footer>
@@ -238,6 +301,16 @@
             loadStats();
             loadUsers();
             loadJobs();
+            loadAuditLogs();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         async function loadStats() {
@@ -361,6 +434,41 @@
                 } catch (e) {
                     container.innerHTML = `<p style="color: var(--accent);">Failed to load jobs: ${err.message}</p>`;
                 }
+            }
+        }
+
+        async function loadAuditLogs() {
+            const container = document.getElementById('audit-logs-body');
+            container.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading audit logs...</td></tr>`;
+
+            try {
+                const logs = await jobsService.getAuditLogs(50);
+                if (!logs || logs.length === 0) {
+                    container.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No audit logs found.</td></tr>`;
+                    return;
+                }
+
+                container.innerHTML = logs.map(log => {
+                    const timestamp = new Date(log.timestamp).toLocaleString();
+                    const userLabel = log.userEmail || 'System';
+                    const roleLabel = log.userRole || 'Unknown';
+                    const actionLabel = escapeHtml(log.action || 'Unknown');
+                    const entityLabel = escapeHtml(log.entity || 'Unknown');
+                    const detailsLabel = escapeHtml(log.details || '');
+
+                    return `
+                        <tr>
+                            <td>${timestamp}</td>
+                            <td>${escapeHtml(userLabel)}</td>
+                            <td>${escapeHtml(roleLabel)}</td>
+                            <td><span class="log-badge">${actionLabel}</span></td>
+                            <td>${entityLabel}</td>
+                            <td>${detailsLabel}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                container.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--accent);">Failed to load audit logs: ${escapeHtml(err.message)}</td></tr>`;
             }
         }
 

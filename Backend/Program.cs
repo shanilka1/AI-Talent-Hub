@@ -20,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Dependency Injection for AI Matching Engine
 builder.Services.AddScoped<IMatchingService, MatchingService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
 // CORS Setup (allow all for ease of local testing)
 builder.Services.AddCors(options =>
