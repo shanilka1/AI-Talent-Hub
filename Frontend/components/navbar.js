@@ -36,6 +36,7 @@ function renderNavbar() {
         } else if (user.role === 'Recruiter') {
             navLinksHtml += `
                 <li><a href="/pages/recruiter-dashboard.html" id="nav-dashboard">Recruiter Dashboard</a></li>
+                <li><a href="/pages/candidate-search.html" id="nav-candidate-search">Search Candidates</a></li>
                 <li><a href="/pages/post-job.html" id="nav-post-job">Post a Job</a></li>
             `;
         } else if (user.role === 'HiringManager') {
@@ -45,6 +46,7 @@ function renderNavbar() {
         } else if (user.role === 'Admin') {
             navLinksHtml += `
                 <li><a href="/pages/admin-dashboard.html" id="nav-dashboard">Admin Dashboard</a></li>
+                <li><a href="/pages/candidate-search.html" id="nav-candidate-search">Search Candidates</a></li>
             `;
         }
         
@@ -84,6 +86,7 @@ function renderNavbar() {
         'admin-dashboard.html': 'nav-dashboard',
         'resume-builder.html': 'nav-resume',
         'post-job.html': 'nav-post-job',
+        'candidate-search.html': 'nav-candidate-search',
         'profile.html': 'nav-profile',
         'auth.html': 'nav-login'
     };
