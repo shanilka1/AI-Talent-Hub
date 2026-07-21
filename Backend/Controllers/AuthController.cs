@@ -18,11 +18,13 @@ namespace AITalentHub.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
+        private readonly IAuditLogService _auditLogService;
 
-        public AuthController(AppDbContext context, IConfiguration config)
+        public AuthController(AppDbContext context, IConfiguration config, IAuditLogService auditLogService)
         {
             _context = context;
             _config = config;
+            _auditLogService = auditLogService;
         }
 
         public class RegisterDto
@@ -98,6 +100,18 @@ namespace AITalentHub.Controllers
             await _context.SaveChangesAsync();
 
             var token = GenerateJwtToken(user);
+
+            await _auditLogService.LogAsync(new AuditLog
+            {
+                UserId = user.Id,
+                UserEmail = user.Email,
+                UserRole = user.Role,
+                Action = "Register",
+                Entity = "User",
+                EntityId = user.Id.ToString(),
+                Details = $"User registered with role {user.Role}."
+            });
+
             return Ok(new { token = token, user = new { id = user.Id, email = user.Email, fullName = user.FullName, role = user.Role } });
         }
 
@@ -111,6 +125,18 @@ namespace AITalentHub.Controllers
             }
 
             var token = GenerateJwtToken(user);
+
+            await _auditLogService.LogAsync(new AuditLog
+            {
+                UserId = user.Id,
+                UserEmail = user.Email,
+                UserRole = user.Role,
+                Action = "Login",
+                Entity = "User",
+                EntityId = user.Id.ToString(),
+                Details = "User logged in successfully."
+            });
+
             return Ok(new { token = token, user = new { id = user.Id, email = user.Email, fullName = user.FullName, role = user.Role } });
         }
 

@@ -20,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Dependency Injection for AI Matching Engine
 builder.Services.AddScoped<IMatchingService, MatchingService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
 // CORS Setup (allow all for ease of local testing)
 builder.Services.AddCors(options =>
@@ -62,6 +63,23 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.EnsureCreated();
+
+    try
+    {
+        dbContext.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS AuditLogs (
+                Id INT AUTO_INCREMENT PRIMARY KEY,
+                UserId INT NULL,
+                UserEmail LONGTEXT NULL,
+                UserRole LONGTEXT NULL,
+                Action LONGTEXT NULL,
+                Entity LONGTEXT NULL,
+                EntityId LONGTEXT NULL,
+                Details LONGTEXT NULL,
+                Timestamp DATETIME NULL
+            );");
+    }
+    catch { }
     
     // Ensure RawResumeText exists (since we aren't using migrations)
     try {

@@ -124,6 +124,10 @@ const jobsService = {
         return await api.get('/admin/stats');
     },
 
+    async getAuditLogs(limit = 50) {
+        return await api.get(`/auditlogs?limit=${limit}`);
+    },
+
     async getAllUsers(role = '') {
         const query = role ? `?role=${role}` : '';
         return await api.get(`/admin/users${query}`);
