@@ -11,9 +11,23 @@ namespace AITalentHub.Data
     {
         public static void Seed(AppDbContext context)
         {
-            if (context.Users.Any())
+            // 0. Ensure Admin exists
+            if (!context.Users.Any(u => u.Email == "administrator@admin.com"))
             {
-                return; // Database already contains data
+                var adminUser = new User
+                {
+                    Email = "administrator@admin.com",
+                    PasswordHash = PasswordHasher.HashPassword("administrator@admin.com"),
+                    FullName = "System Administrator",
+                    Role = "Admin"
+                };
+                context.Users.Add(adminUser);
+                context.SaveChanges();
+            }
+
+            if (context.Users.Any(u => u.Role != "Admin"))
+            {
+                return; // Database already contains data other than admin
             }
 
             // 1. Create Recruiter User
