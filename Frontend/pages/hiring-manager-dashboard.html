@@ -330,7 +330,11 @@
             // Show and update applicants section
             document.getElementById('applicants-section').style.display = 'block';
             document.getElementById('applicants-title').textContent = `Applicants for "${jobTitle}"`;
-                    async function loadApplicants(jobId) {
+            
+            loadApplicants(jobId);
+        }
+
+        async function loadApplicants(jobId) {
             const container = document.getElementById('applicants-list');
             container.innerHTML = `<p style="color: var(--text-muted);">Loading candidates...</p>`;
 

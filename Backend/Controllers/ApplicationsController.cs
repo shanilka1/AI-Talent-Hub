@@ -166,17 +166,23 @@ namespace AITalentHub.Controllers
         [HttpGet("job/{jobId}")]
         public async Task<IActionResult> GetJobApplicants(int jobId)
         {
+            var userInfo = GetCurrentUserInfo();
             var recruiter = await GetCurrentRecruiterAsync();
-            if (recruiter == null)
+            bool isPrivileged = userInfo.Role == "HiringManager" || userInfo.Role == "Admin";
+
+            if (recruiter == null && !isPrivileged)
             {
-                return BadRequest("Only recruiters can view job applicants.");
+                return BadRequest("Only recruiters and hiring managers can view job applicants.");
             }
 
-            // Ensure recruiter owns the job
-            var job = await _context.JobPosts.FirstOrDefaultAsync(j => j.Id == jobId && j.RecruiterProfileId == recruiter.Id);
-            if (job == null)
+            // Ensure recruiter owns the job if not privileged
+            if (!isPrivileged)
             {
-                return NotFound("Job post not found or unauthorized.");
+                var job = await _context.JobPosts.FirstOrDefaultAsync(j => j.Id == jobId && j.RecruiterProfileId == recruiter!.Id);
+                if (job == null)
+                {
+                    return NotFound("Job post not found or unauthorized.");
+                }
             }
 
             var apps = await _context.Applications
@@ -203,15 +209,22 @@ namespace AITalentHub.Controllers
         [HttpPut("{id}/status")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusDto dto)
         {
+            var userInfo = GetCurrentUserInfo();
             var recruiter = await GetCurrentRecruiterAsync();
-            if (recruiter == null)
+            bool isPrivileged = userInfo.Role == "HiringManager" || userInfo.Role == "Admin";
+
+            if (recruiter == null && !isPrivileged)
             {
-                return BadRequest("Only recruiters can update application status.");
+                return BadRequest("Only recruiters and hiring managers can update application status.");
             }
 
-            var app = await _context.Applications
-                                    .Include(a => a.JobPost)
-                                    .FirstOrDefaultAsync(a => a.Id == id && a.JobPost!.RecruiterProfileId == recruiter.Id);
+            var appQuery = _context.Applications.Include(a => a.JobPost).AsQueryable();
+            if (!isPrivileged)
+            {
+                appQuery = appQuery.Where(a => a.JobPost!.RecruiterProfileId == recruiter!.Id);
+            }
+            
+            var app = await appQuery.FirstOrDefaultAsync(a => a.Id == id);
 
             if (app == null)
             {
@@ -227,7 +240,6 @@ namespace AITalentHub.Controllers
             app.Status = dto.Status;
             await _context.SaveChangesAsync();
 
-            var userInfo = GetCurrentUserInfo();
             await _auditLogService.LogAsync(new AuditLog
             {
                 UserId = userInfo.UserId,
@@ -245,15 +257,22 @@ namespace AITalentHub.Controllers
         [HttpPost("{id}/schedule-interview")]
         public async Task<IActionResult> ScheduleInterview(int id, [FromBody] ScheduleInterviewDto dto)
         {
+            var userInfo = GetCurrentUserInfo();
             var recruiter = await GetCurrentRecruiterAsync();
-            if (recruiter == null)
+            bool isPrivileged = userInfo.Role == "HiringManager" || userInfo.Role == "Admin";
+
+            if (recruiter == null && !isPrivileged)
             {
-                return BadRequest("Only recruiters can schedule interviews.");
+                return BadRequest("Only recruiters and hiring managers can schedule interviews.");
             }
 
-            var app = await _context.Applications
-                                    .Include(a => a.JobPost)
-                                    .FirstOrDefaultAsync(a => a.Id == id && a.JobPost!.RecruiterProfileId == recruiter.Id);
+            var appQuery = _context.Applications.Include(a => a.JobPost).AsQueryable();
+            if (!isPrivileged)
+            {
+                appQuery = appQuery.Where(a => a.JobPost!.RecruiterProfileId == recruiter!.Id);
+            }
+            
+            var app = await appQuery.FirstOrDefaultAsync(a => a.Id == id);
 
             if (app == null)
             {
@@ -276,7 +295,6 @@ namespace AITalentHub.Controllers
             
             await _context.SaveChangesAsync();
 
-            var userInfo = GetCurrentUserInfo();
             await _auditLogService.LogAsync(new AuditLog
             {
                 UserId = userInfo.UserId,
@@ -294,21 +312,28 @@ namespace AITalentHub.Controllers
         [HttpGet("my-interviews")]
         public async Task<IActionResult> GetMyInterviews()
         {
+            var userInfo = GetCurrentUserInfo();
             var recruiter = await GetCurrentRecruiterAsync();
             var candidate = await GetCurrentCandidateAsync();
+            bool isPrivileged = userInfo.Role == "HiringManager" || userInfo.Role == "Admin";
 
-            if (recruiter != null)
+            if (isPrivileged || recruiter != null)
             {
-                // Return recruiter interviews
-                var interviews = await _context.Interviews
-                                               .Include(i => i.Application)
-                                               .ThenInclude(a => a!.JobPost)
-                                               .Include(i => i.Application)
-                                               .ThenInclude(a => a!.CandidateProfile)
-                                               .ThenInclude(cp => cp!.User)
-                                               .Where(i => i.Application!.JobPost!.RecruiterProfileId == recruiter.Id)
-                                               .OrderBy(i => i.ScheduledTime)
-                                               .ToListAsync();
+                // Return recruiter / hiring manager interviews
+                var query = _context.Interviews
+                                    .Include(i => i.Application)
+                                    .ThenInclude(a => a!.JobPost)
+                                    .Include(i => i.Application)
+                                    .ThenInclude(a => a!.CandidateProfile)
+                                    .ThenInclude(cp => cp!.User)
+                                    .AsQueryable();
+                                    
+                if (!isPrivileged) 
+                {
+                    query = query.Where(i => i.Application!.JobPost!.RecruiterProfileId == recruiter!.Id);
+                }
+
+                var interviews = await query.OrderBy(i => i.ScheduledTime).ToListAsync();
 
                 return Ok(interviews.Select(i => new
                 {
@@ -318,7 +343,9 @@ namespace AITalentHub.Controllers
                     candidateName = i.Application?.CandidateProfile?.User?.FullName,
                     scheduledTime = i.ScheduledTime,
                     locationOrLink = i.LocationOrLink,
-                    notes = i.Notes
+                    notes = i.Notes,
+                    feedback = i.Feedback,
+                    candidateRating = i.CandidateRating
                 }));
             }
             else if (candidate != null)
@@ -345,6 +372,59 @@ namespace AITalentHub.Controllers
             }
 
             return BadRequest("User role not recognized.");
+        }
+
+        public class InterviewFeedbackDto
+        {
+            public string Feedback { get; set; } = string.Empty;
+            public int CandidateRating { get; set; }
+        }
+
+        [HttpPut("interview/{id}/feedback")]
+        public async Task<IActionResult> UpdateInterviewFeedback(int id, [FromBody] InterviewFeedbackDto dto)
+        {
+            var userInfo = GetCurrentUserInfo();
+            var recruiter = await GetCurrentRecruiterAsync();
+            bool isPrivileged = userInfo.Role == "HiringManager" || userInfo.Role == "Admin";
+
+            if (recruiter == null && !isPrivileged)
+            {
+                return BadRequest("Only recruiters and hiring managers can update interview feedback.");
+            }
+
+            var interviewQuery = _context.Interviews
+                                         .Include(i => i.Application)
+                                         .ThenInclude(a => a!.JobPost)
+                                         .AsQueryable();
+
+            if (!isPrivileged)
+            {
+                interviewQuery = interviewQuery.Where(i => i.Application!.JobPost!.RecruiterProfileId == recruiter!.Id);
+            }
+
+            var interview = await interviewQuery.FirstOrDefaultAsync(i => i.Id == id);
+            if (interview == null)
+            {
+                return NotFound("Interview not found or unauthorized.");
+            }
+
+            interview.Feedback = dto.Feedback;
+            interview.CandidateRating = dto.CandidateRating;
+
+            await _context.SaveChangesAsync();
+
+            await _auditLogService.LogAsync(new AuditLog
+            {
+                UserId = userInfo.UserId,
+                UserEmail = userInfo.Email,
+                UserRole = userInfo.Role,
+                Action = "UpdateInterviewFeedback",
+                Entity = "Interview",
+                EntityId = interview.Id.ToString(),
+                Details = $"Feedback updated for interview {interview.Id} by {userInfo.Email}."
+            });
+
+            return Ok(new { message = "Feedback updated successfully." });
         }
     }
 }
