@@ -177,7 +177,16 @@ Resume Text:
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                return StatusCode(500, $"AI Parsing failed: {error}");
+                try
+                {
+                    using var errorDoc = JsonDocument.Parse(error);
+                    var message = errorDoc.RootElement.GetProperty("error").GetProperty("message").GetString();
+                    return StatusCode((int)response.StatusCode, $"AI API Error: {message}");
+                }
+                catch
+                {
+                    return StatusCode((int)response.StatusCode, $"AI Parsing failed: {error}");
+                }
             }
 
             var responseString = await response.Content.ReadAsStringAsync();
@@ -331,7 +340,16 @@ Resume Text:
                 if (!response.IsSuccessStatusCode)
                 {
                     var error = await response.Content.ReadAsStringAsync();
-                    return StatusCode(500, $"AI Parsing failed: {error}");
+                    try
+                    {
+                        using var errorDoc = JsonDocument.Parse(error);
+                        var message = errorDoc.RootElement.GetProperty("error").GetProperty("message").GetString();
+                        return StatusCode((int)response.StatusCode, $"AI API Error: {message}");
+                    }
+                    catch
+                    {
+                        return StatusCode((int)response.StatusCode, $"AI Parsing failed: {error}");
+                    }
                 }
 
                 var responseString = await response.Content.ReadAsStringAsync();
